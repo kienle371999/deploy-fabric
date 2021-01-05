@@ -1,0 +1,62 @@
+{
+	"name": "first-network",
+	"version": "1.0.0",
+	"license": "Apache-2.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "admin",
+			"password": "adminpw"
+		},
+		"enableAuthentication": false,
+		"organization": "Org1MSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+
+	"channels": {
+		"blocktrace-channel": {
+			"peers": {
+				"peer0.org1.blocktrace.com": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"Org1MSP": {
+			"mspid": "Org1MSP",
+			"adminPrivateKey": {
+				"path": "../blocktrace-network/organizations/peerOrganizations/org1.blocktrace.com/users/Admin@org1.blocktrace.com/msp/keystore/758fb441e930dc56653ea9409553f218cfb397da87f05c57025c0cf1233a002f_sk"
+			},
+			"peers": ["peer0.org1.blocktrace.com"],
+			"signedCert": {
+				"path": "../blocktrace-network/organizations/peerOrganizations/org1.blocktrace.com/users/Admin@org1.blocktrace.com/msp/signcerts/cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0.org1.blocktrace.com": {
+			"tlsCACerts": {
+				"path": "../blocktrace-network/organizations/peerOrganizations/org1.blocktrace.com/peers/peer0.org1.blocktrace.com/tls/ca.crt"
+			},
+			"url": "grpcs://0.0.0.0:9051",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer0.org1.blocktrace.com"
+			}
+		}
+	}
+}

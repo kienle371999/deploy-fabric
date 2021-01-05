@@ -1,0 +1,10 @@
+{
+	"network-configs": {
+		"first-network": {
+			"name": "My blocktrace-network",
+			"profile": "./connection-profile/first-network.json",
+			"enableAuthentication": false
+		}
+	},
+	"license": "Apache-2.0"
+}

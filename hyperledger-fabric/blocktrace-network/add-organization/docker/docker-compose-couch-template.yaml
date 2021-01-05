@@ -1,0 +1,26 @@
+version: '2'
+
+networks:
+  blocktrace:
+
+services:
+  ${COUCHDB_NAME}:
+    container_name: ${COUCHDB_NAME}
+    image: couchdb:3.1
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "${COUCHDB_PORT}:5984"
+    networks:
+      - blocktrace
+
+  peer0.${ORG_NAME}.blocktrace.com:
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=${COUCHDB_NAME}:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    depends_on:
+      - ${COUCHDB_NAME}
+
