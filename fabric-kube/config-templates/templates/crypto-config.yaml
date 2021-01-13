@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer
+  # ---------------------------------------------------------------------------
+  - Name: Orderer
+    Domain: orderer.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer0
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+{{- range $i, $org := .Values.orgs }}
+  - Name: {{ $org.Name }}
+    Domain: {{ $org.Domain }}
+    EnableNodeOUs: true
+    Template:
+      Count: {{ $org.PeerCount }}
+    Users:
+      Count: {{ $org.UserCount }}
+{{- end }}
