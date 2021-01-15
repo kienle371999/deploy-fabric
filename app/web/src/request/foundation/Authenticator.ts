@@ -31,7 +31,7 @@ class Authenticator {
 
   async logIn(params: Object) {
     return new Promise((resolve) => {
-      axios.post(`${this.env}/api/user/signIn`, params)
+      axios.post(`${this.env}/api/signIn`, params)
         .then(response => {
           const user = response.data
           const userData = JSON.stringify(user)

@@ -2,7 +2,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const dbConfig = require('./config/db.config')
-const router = require('./routes')
 const app = express()
 const mongoose = require('./models')
 require('dotenv').config({ path: require('find-config')('.env') })
@@ -35,7 +34,7 @@ mongoose
     process.exit()
   });
 
-app.use('/api', router.routers)
+app.use('/api', require('./routes'))
 
 // set port, listen for requests
 const PORT = process.env.API_PORT || 8080;

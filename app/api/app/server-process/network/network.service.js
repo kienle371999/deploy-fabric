@@ -9,7 +9,7 @@ const _validArgs = (arg) => {
   return true
 }
 
-const addNetworkService = async (args) => {
+const addNetwork = async (args) => {
   const validateArgs = async (args) => {
     const { network_name, organizations, order } = args
 
@@ -65,12 +65,12 @@ const addNetworkService = async (args) => {
   }
 }
 
-const getNetworkService = async() => {
+const getNetwork = async() => {
   
 }
 
 module.exports = {
-    addNetworkService,
-    getNetworkService
+    addNetwork,
+    getNetwork
 }
 

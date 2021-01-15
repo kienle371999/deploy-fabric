@@ -9,7 +9,7 @@ const _validArgs = (arg) => {
   return true
 }
 
-const signInService = async (args) => {
+const signIn = async (args) => {
   const validateArgs = async (args) => {
     const { email, password } = args
     if(!_validArgs(email)) return badRequest('Email must be non-empty')
@@ -40,5 +40,5 @@ const signInService = async (args) => {
 }
 
 module.exports = {
-  signInService
+  signIn
 }

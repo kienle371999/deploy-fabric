@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 
-const verifyToken = (req, res, next) => {
+const authJwt = (req, res, next) => {
   let bearerToken = req.headers.authorization;
 
   if (!bearerToken) {
@@ -19,7 +19,5 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-module.exports = {
-  verifyToken: verifyToken
-}
+module.exports = authJwt;
 

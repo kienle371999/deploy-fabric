@@ -1,11 +1,11 @@
-const { signInService } = require('./auth.service')
+const express = require('express')
+const { signIn } = require('./auth.service')
 
-const signIn = async(req, res) => {
-    const user = await signInService(req.body)
-    console.log('iiii', user.data)
-    return res.status(user.code).json(user.data)
-}
+const api = express.Router()
 
-module.exports = {
-    signIn
-}
+api.post('/signIn', async (req, res) => {
+    const result = await signIn(req.body)
+    return res.status(result.code).json(result.data)
+})
+
+module.exports = api
