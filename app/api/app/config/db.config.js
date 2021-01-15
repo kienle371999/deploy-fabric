@@ -1,5 +1,5 @@
 module.exports = {
   HOST: "localhost",
-  PORT: 27017,
-  DB: "sota_console_db"
+  PORT: 30000,
+  DB: "deploy_fabric_db"
 };

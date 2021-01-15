@@ -73,25 +73,28 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, ref } from "vue";
-import { useRouter } from "vue-router";
+<script lang="ts">
+import { defineComponent, ref } from "vue"
+import { useRouter } from "vue-router"
+import Authenticator from "../request/foundation/Authenticator"
 
 export default defineComponent({
   setup() {
-    const router = useRouter();
-    const email = ref("johndoe@mail.com");
-    const password = ref("@#!@#asdf1231!_!@#");
+    const router = useRouter()
+    const email = ref<String>('')
+    const password = ref<String>('')
 
-    function login() {
-      router.push("/dashboard");
+    async function login() {
+      const user = await Authenticator.logIn({ email, password })
+      if(user) router.push('/dashboard')
+      return
     }
 
     return {
       login,
       email,
       password,
-    };
+    }
   },
 });
 </script>

@@ -1,17 +1,11 @@
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
+require("./user.model")
+require("./network.model")
+require("./log.model")
+require("./organization.model")
+require("./peer.model")
+require("./channel.model");
+require("./chaincode.model");
+const mongoose = require('mongoose')
+mongoose.Promise = global.Promise
 
-const db = {};
-
-db.mongoose = mongoose;
-
-db.user = require("./user.model");
-db.role = require("./role.model");
-db.network = require("./network.model");
-db.log = require("./log.model");
-
-db.ROLES = ["admin"];
-
-module.exports = {
-    db: db
-};
+module.exports = mongoose

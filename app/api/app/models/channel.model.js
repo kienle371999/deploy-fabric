@@ -1,18 +1,18 @@
 const mongoose = require("mongoose")
 const { Schema } = mongoose
 
-const LogSchema = new Schema({
-  networkId: {
+const ChannelSchema = new Schema({
+  name: {
     type: String,
     maxlength: 255,
     required: true
   },
-  message: {
+  status: {
     type: String,
+    maxlength: 255,
     required: true
   }
 }, { timestamps: true })
 
-const Log = mongoose.model('Log', LogSchema)
-module.exports = Log
-
+const Channel = mongoose.model('Channel', ChannelSchema)
+module.exports = Channel

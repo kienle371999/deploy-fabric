@@ -1,12 +1,23 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
+const { Schema } = mongoose
 
-const Network = mongoose.model(
-  "Network",
-  new mongoose.Schema({
-    name: String,
-    status: String,
-    orgs: [{}]
-  })
-);
+const NetworkSchema = new Schema({
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  name: {
+    type: String,
+    maxlength: 255,
+    required: true
+  },
+  status: {
+    type: String,
+    maxlength: 255,
+    required: true
+  }
+}, { timestamps: true })
 
-module.exports = Network;
+const Network = mongoose.model('Network', NetworkSchema)
+module.exports = Network
