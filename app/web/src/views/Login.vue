@@ -85,7 +85,8 @@ export default defineComponent({
     const password = ref<String>('')
 
     async function login() {
-      const user = await Authenticator.logIn({ email, password })
+      const user = await Authenticator.logIn({ email: email.value, password: password.value })
+      console.log("login -> user", user)
       if(user) router.push('/dashboard')
       return
     }

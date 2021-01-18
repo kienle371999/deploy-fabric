@@ -10,6 +10,7 @@ import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
 import Networkconfiguration from "./views/Networkconfiguration.vue";
+import localStorageSetting from "./utils/LocalStorageSetting";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -63,6 +64,13 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes: routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated: boolean = localStorageSetting._getAccessToken() ? true : false;
+  
+  if (to.name !== "Login" && !isAuthenticated) next({ name: 'Login' });
+  else next();
 });
 
 export default router;

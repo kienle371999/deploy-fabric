@@ -79,7 +79,7 @@
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
             >Products</a
           >
-          <router-link
+          <router-link @click="signOut()"
             to="/"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
             >Log out</router-link
@@ -93,15 +93,21 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useSidebar } from "../hooks/useSidebar";
+import Authenticator from "../request/foundation/Authenticator";
 
 export default defineComponent({
   setup(_, { emit }) {
     const dropdownOpen = ref(false);
     const { isOpen } = useSidebar();
 
+    function signOut() {
+      Authenticator.logOut()
+    }
+
     return {
       isOpen,
       dropdownOpen,
+      signOut
     };
   },
 });

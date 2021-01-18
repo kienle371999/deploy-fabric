@@ -1,57 +1,43 @@
 import axios from 'axios'
-
-interface User {
-  id: String,
-  email: String,
-  password: String,
-  token: String
-}
-
+import localStorageSetting from '../../utils/LocalStorageSetting'
 class Authenticator {
-  _user: User
-  env: String
+  env: string
 
   constructor () {
-    this._init()
     this.env = import.meta.env.VITE_SERVER
   }
 
-  _init () {
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      try {
-        this._user = JSON.parse(storedUser)
-      } catch (error) {
-        console.log('Invalid stored user: ' + storedUser)
-        localStorage.removeItem('user')
-        this._user = null
-      }
+  async logIn(params: Object) {
+    try {
+      const user = await axios.post(`${this.env}/api/signIn`, params)
+      localStorageSetting._setToken(JSON.stringify(user.data.token))
+      console.log('iiiii', localStorageSetting._getAccessToken())
+      return user
+    }
+    catch(error) {
+      return 
     }
   }
 
-  async logIn(params: Object) {
-    return new Promise((resolve) => {
-      axios.post(`${this.env}/api/signIn`, params)
-        .then(response => {
-          const user = response.data
-          const userData = JSON.stringify(user)
-          this._user = JSON.parse(userData)
-          localStorage.setItem('user', userData)
-          resolve(user)
-        })
-        .catch(err => {
-          return err.message
-        })
-    })
+  async authenticateToken() {
+    try {
+      const currentToken = this._getAuthToken()
+      const vToken = await axios.post(`${this.env}/api/authenticateToken`, { currentToken })
+      return vToken
+    }
+    catch(error) {
+      localStorageSetting._clearToken()
+      return 
+    }
   }
 
   logOut() {
-    this.removeUser()
-    return 'Done'
+    localStorageSetting._clearToken()
   }
 
-  removeUser() {
-    localStorage.removeItem('user')
+  _getAuthToken() {
+    const user = JSON.parse(localStorageSetting._getAccessToken())
+    return user ? user.token : ''
   }
 }
 

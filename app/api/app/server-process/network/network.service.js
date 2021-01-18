@@ -1,10 +1,9 @@
-const { badRequest, serverError, success } = require('../../utils/messageHandle')
 const { status, role } = require('../../utils/constant')
 const Network = require('../../models/network.model')
 const Organization = require('../../models/organization.model')
 const Peer = require('../../models/peer.model')
 
-const _validArgs = (arg) => {
+const _vArgs = (arg) => {
   if(typeof arg !== 'string' || arg.length === 0) return false
   return true
 }
@@ -13,20 +12,20 @@ const addNetwork = async (args) => {
   const validateArgs = async (args) => {
     const { network_name, organizations, order } = args
 
-    if (!_validArgs(network_name)) return badRequest('Network Name must be non-empty')
+    if (!_vArgs(network_name)) throw new Error('Network Name must be non-empty')
     organizations.forEach(org => {
-      if(!_validArgs(org.org_name)) return badRequest('Organization Name must be non-empty')
-      if(!_validArgs(org.number_peers)) return badRequest('Organization Peers must be non-empty')
+      if(!_vArgs(org.org_name)) throw new Error('Organization Name must be non-empty')
+      if(!_vArgs(org.number_peers)) throw new Error('Organization Peers must be non-empty')
     })
-    if (!_validArgs(order.order_name)) return badRequest('Order Name must be non-empty')
-    if (!_validArgs(order.number_peers)) return badRequest('Order Peers must be non-empty')
+    if (!_vArgs(order.order_name)) throw new Error('Order Name must be non-empty')
+    if (!_vArgs(order.number_peers)) throw new Error('Order Peers must be non-empty')
 
     try {
       const network = await Network.findOne({ name: network_name })
-      if(network) return badRequest('Duplicate Network')
+      if(network) throw new Error('Duplicate Network')
     }
     catch(error) {
-      return serverError(error.message)
+      throw new Error(error.message)
     }
     return args
   }
@@ -41,9 +40,9 @@ const addNetwork = async (args) => {
   
     organizations.forEach(async (org, index) => {
       const newOrg = await Organization.create({ 
-          network_id: newNetwork._id,
-          name: org.org_name,
-          role: role.organization
+        network_id: newNetwork._id,
+        name: org.org_name,
+        role: role.organization
       })
       await Peer.create({
         org_id: newOrg._id,
@@ -58,14 +57,15 @@ const addNetwork = async (args) => {
       role: role.order
     })
 
-    return success(newNetwork)
+    return newNetwork
   }
   catch(error) {
-    return serverError(error.message)
+    throw new Error(error.message)
   }
 }
 
-const getNetwork = async() => {
+const getNetwork
+ = async() => {
   
 }
 
