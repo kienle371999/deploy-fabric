@@ -1,4 +1,6 @@
 {{- range $i, $org := .Values.PeerOrgs }}
+{{- range $i, $ca := $.Values.caAccount }}
+{{- if eq $ca.organization $org.Name }}
 
 apiVersion: v1
 kind: Service
@@ -13,6 +15,9 @@ spec:
   ports:
   - protocol: TCP
     port: 7054
+    nodePort: {{ $ca.port }}
     name: http
 ---
+{{- end }} {{- /* if CAs */ -}} 
+{{- end }} {{- /* CAs */ -}}
 {{- end }} {{- /* Orgs */ -}}

@@ -1,6 +1,9 @@
 {{- range $i, $org := .Values.PeerOrgs }}
 {{- range $peerIndex := until ($org.Template.Count | int) }}
+{{- range $i, $peerCouchDB := $.Values.couchdbAccount }}
 {{- $peer := (printf "peer%s" ($peerIndex | toString)) }}
+{{- $peerDomain := (printf "%s.%s" $peer $org.Domain) }}
+{{- if eq $peerCouchDB.domain $peerDomain }}
 
 apiVersion: v1
 kind: Service
@@ -15,7 +18,10 @@ spec:
   ports:
   - protocol: TCP
     port: 5984
+    nodePort: {{ $peerCouchDB.port | int }}
     name: couchdb
 ---
+{{- end }} {{- /* If CouchDB */ -}} 
+{{- end }} {{- /* COuchDB */ -}} 
 {{- end }} {{- /* Peers */ -}}
 {{- end }} {{- /* Orgs */ -}}

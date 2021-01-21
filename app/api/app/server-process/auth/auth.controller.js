@@ -11,7 +11,6 @@ api.post('/signIn', async(req, res) => {
         return handleStatus(res, success(result))
     }
     catch(error) {
-        console.log("error", error)
         return commonError(res, error)
     }
 })

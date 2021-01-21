@@ -7,6 +7,11 @@ const PeerSchema = new Schema({
     ref: 'Organization',
     require: true
   },
+  network_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'Network',
+    require: true
+  },
   channel_id: [{
     type: Schema.Types.ObjectId,
     ref: 'Channel'
@@ -18,18 +23,15 @@ const PeerSchema = new Schema({
   },
   couchdb_name: {
     type: String,
-    maxlength: 255,
-    required: true
+    maxlength: 255
   },
   couchdb_username: {
     type: String,
-    maxlength: 255,
-    required: true
+    maxlength: 255
   },
   couchdb_password: {
     type: String,
-    maxlength: 255,
-    required: true
+    maxlength: 255
   },
   status: {
     type: String,

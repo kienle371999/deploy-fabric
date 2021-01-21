@@ -1,4 +1,6 @@
 {{- range $i, $org := .Values.PeerOrgs }}
+{{- range $i, $ca := $.Values.caAccount }}
+{{- if eq $ca.organization $org.Name }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -25,7 +27,7 @@ spec:
         command: ["sh", "-c", "fabric-ca-server start \
             --ca.certfile /etc/hyperledger/fabric-ca-server-config/cert.pem \
             --ca.keyfile /etc/hyperledger/fabric-ca-server-config/private_key \
-            -b {{ $.Values.ca.userName }}:{{ $.Values.ca.password }} -d"]
+            -b {{ $ca.userName }}:{{ $ca.password }} -d"]
 
         volumeMounts:
         - mountPath: /etc/hyperledger/fabric-ca-server-config/
@@ -34,7 +36,7 @@ spec:
         env:
         # TODO move configurable ones to configmaps
         - name: FABRIC_LOGGING_SPEC
-          value: {{ $.Values.ca.logLevel }}
+          value: {{ $ca.logLevel }}
         - name: FABRIC_CA_HOME
           value: /etc/hyperledger/fabric-ca-server
         - name: FABRIC_CA_SERVER_CA_NAME
@@ -46,4 +48,6 @@ spec:
         - name: FABRIC_CA_SERVER_TLS_KEYFILE
           value: /etc/hyperledger/fabric-ca-server-config/private_key
 ---
+{{- end }} {{- /* if CAs */ -}} 
+{{- end }} {{- /* CAs */ -}}
 {{- end }} {{- /* Orgs */ -}}

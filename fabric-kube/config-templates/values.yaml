@@ -2,12 +2,38 @@ orgs:
   - Name: Org1
     Domain: org1.example.com
     PeerCount: 2
+    CA:
+      username: admin
+      password: adminpw11
+      port: 32000
+    Peers:
+      - Domain: peer0.org1.example.com
+        CouchDB:
+          username: admin
+          password: adminpw123
+          port: 30030
+      - Domain: peer1.org1.example.com
+        CouchDB:
+          username: admin
+          password: adminpw345
+          port: 30031
     UserCount: 1
   - Name: Org2
     Domain: org2.example.com
     PeerCount: 2
-    UserCount: 1
-  - Name: Org3
-    Domain: org3.example.com
-    PeerCount: 2
+    CA:
+      username: admin
+      password: adminpw11
+      port: 32010
+    Peers:
+      - Domain: peer0.org2.example.com
+        CouchDB:
+          username: admin
+          password: adminpw678
+          port: 30032
+      - Domain: peer1.org2.example.com
+        CouchDB:
+          username: admin
+          password: adminpw789
+          port: 30033
     UserCount: 1

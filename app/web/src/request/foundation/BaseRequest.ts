@@ -27,7 +27,7 @@ class BaseRequest {
       'Authorization': 'Bearer ' + auth._getAuthToken()
     }
 
-    const config: any = _.assign({
+    const config: Object = Object.assign({
       method,
       url,
       headers
@@ -35,12 +35,13 @@ class BaseRequest {
 
     try {
       const res = await axios(config)
-      return res.data 
+      return res
     }
     catch(error) {
       if (error.response.status === 401) {
-        return localStorageSetting._clearToken()
+        localStorageSetting._clearToken()
       }
+      return 
     }
   }
 }

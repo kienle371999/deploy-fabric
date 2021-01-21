@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import localStorageSetting from "./utils/LocalStorageSetting";
 
 import Dashboard from "./views/Dashboard.vue";
 import Forms from "./views/Forms.vue";
@@ -10,7 +11,10 @@ import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
 import Networkconfiguration from "./views/Networkconfiguration.vue";
-import localStorageSetting from "./utils/LocalStorageSetting";
+import NetworkSetupOrg from "./views/networksetup/NetworkSetupOrg.vue";
+import NetworkSetupPeer from "./views/networksetup/NetworkSetupPeer.vue";
+import NetworkSetupOrder from "./views/networksetup/NetworkSetupOrder.vue";
+
 
 const routes: RouteRecordRaw[] = [
   {
@@ -58,6 +62,21 @@ const routes: RouteRecordRaw[] = [
     path: "/network-configuration",
     name: "Networkconfiguration",
     component: Networkconfiguration,
+  },
+  {
+    path: "/network-setup/organization",
+    name: "NetworkSetupOrg",
+    component: NetworkSetupOrg,
+  },
+  {
+    path: "/network-setup/peer",
+    name: "NetworkSetupPeer",
+    component: NetworkSetupPeer,
+  },
+  {
+    path: "/network-setup/order",
+    name: "NetworkSetupOrder",
+    component: NetworkSetupOrder,
   }
 ];
 
@@ -68,7 +87,6 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated: boolean = localStorageSetting._getAccessToken() ? true : false;
-  
   if (to.name !== "Login" && !isAuthenticated) next({ name: 'Login' });
   else next();
 });

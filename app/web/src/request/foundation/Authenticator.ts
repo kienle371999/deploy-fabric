@@ -11,7 +11,6 @@ class Authenticator {
     try {
       const user = await axios.post(`${this.env}/api/signIn`, params)
       localStorageSetting._setToken(JSON.stringify(user.data.token))
-      console.log('iiiii', localStorageSetting._getAccessToken())
       return user
     }
     catch(error) {
@@ -36,8 +35,9 @@ class Authenticator {
   }
 
   _getAuthToken() {
-    const user = JSON.parse(localStorageSetting._getAccessToken())
-    return user ? user.token : ''
+    const access_token = JSON.parse(localStorageSetting._getAccessToken())
+    console.log("Authenticator -> _getAuthToken -> access_token", access_token)
+    return access_token 
   }
 }
 

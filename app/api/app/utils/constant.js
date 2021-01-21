@@ -8,3 +8,9 @@ exports.role = {
     organization: 'organization',
     order: 'order'
 }
+
+exports.model = {
+    organization: 'organization',
+    order: 'order',
+    peer: 'peer'
+}

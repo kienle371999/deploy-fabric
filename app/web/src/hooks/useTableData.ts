@@ -3,6 +3,7 @@ import { ref } from 'vue';
 export interface ISimpleTableData {
   city: string;
   totalOrders: string;
+  editMode: boolean;
 }
 
 export interface IPaginatedTableData {
@@ -23,12 +24,43 @@ export interface IWideTableData {
   role: string;
 }
 
+export interface IOrganization {
+  organization: string
+  ca_username: string
+  ca_password: string
+}
+
+export interface IPeer {
+  peer: string
+  organization: string
+  couchdb_username: string
+  couchdb_password: string
+}
+
+export interface IOrder {
+  peer: string
+  order: string
+}
+
+export const organizationTableData = ref<IOrganization[]>([
+  { organization: 'org1', ca_username: 'admin', ca_password: 'adminpw' }
+]);
+
+export const peerTableData = ref<IPeer[]>([
+  { peer: 'peer0', organization: 'org1', couchdb_username: 'admin', couchdb_password: 'adminpw' }
+]);
+
+export const orderTableData = ref<IOrder[]>([
+  { peer: 'peer0', order: 'order' }
+]);
+
+
 export function useTableData() {
   const simpleTableData = ref<ISimpleTableData[]>([
-    { city: 'New York', totalOrders: '200,120' },
-    { city: 'Manchester', totalOrders: '632,310' },
-    { city: 'London', totalOrders: '451,110' },
-    { city: 'Madrid', totalOrders: '132,524' },
+    { city: 'New York', totalOrders: '200,120', editMode: true },
+    { city: 'Manchester', totalOrders: '632,310', editMode: true },
+    { city: 'London', totalOrders: '451,110', editMode: true },
+    { city: 'Madrid', totalOrders: '132,524', editMode: true },
   ]);
 
   const paginatedTableData = ref<IPaginatedTableData[]>([
@@ -78,12 +110,15 @@ export function useTableData() {
       title2: 'Web dev',
       status: 'Active',
       role: 'Owner',
+      editMode: true
     }))
   );
+
+
 
   return {
     simpleTableData,
     paginatedTableData,
-    wideTableData,
-  };
+    wideTableData
+  }
 }

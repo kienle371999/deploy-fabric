@@ -8,8 +8,8 @@ const _vArgs = (arg) => {
   return true
 }
 
-const signIn = async (args) => {
-  const validateArgs = async (args) => {
+const signIn = async(args) => {
+  const validateArgs = async(args) => {
     const { email, password } = args
     if(!_vArgs(email)) throw new Error('Email must be non-empty')
     if(!_vArgs(password)) throw new Error('Password must be non-empty')
@@ -20,7 +20,7 @@ const signIn = async (args) => {
 
       const passwordIsValid = bcrypt.compareSync(password, user.password)
       if (!passwordIsValid) throw new Error('Invalid password')
-      return user.toObject()
+      return { _id: user._id, ...args }
     }
     catch(error) {
       throw new Error(error.message)
@@ -29,7 +29,7 @@ const signIn = async (args) => {
     
   try {
     const userArgs = await validateArgs(args)
-    const token = jwt.sign({ id: userArgs._id, email: userArgs.email }, config.tokenSecret, { expiresIn: 86400 })
+    const token = jwt.sign({ _id: userArgs._id, email: userArgs.email }, config.tokenSecret, { expiresIn: '10h' })
     return { ...userArgs, token: token }
   }
   catch(error) {
@@ -47,6 +47,7 @@ const authenticateToken = async(args) => {
   try {
     const { token } = await validateArgs(args)
     const _vToken = jwt.verify(token, config.tokenSecret)
+    if(!_vToken) throw new Error('Invalid token')
     return _vToken
   }
   catch(error) {
