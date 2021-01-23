@@ -4,12 +4,12 @@ import auth from './Authenticator'
 import localStorageSetting from '../../utils/LocalStorageSetting'
 
 class BaseRequest {
-  async get(url: String, params: Object) {
-    return this._doRequest('GET', url, { params })
+  async get(url: String, data: Object = {}) {
+    return this._doRequest('GET', url, { data })
   }
 
-  async delete(url: String, params:Object = {}) {
-    return this._doRequest('DELETE', url, { params })
+  async delete(url: String, data:Object = {}) {
+    return this._doRequest('DELETE', url, { data })
   }
 
   async put(url: String, data: Object = {}) {
@@ -35,7 +35,7 @@ class BaseRequest {
 
     try {
       const res = await axios(config)
-      return res
+      return res.data
     }
     catch(error) {
       if (error.response.status === 401) {

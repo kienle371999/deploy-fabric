@@ -43,7 +43,7 @@
       <nav class="mt-10">
         <router-link
           class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4"
-          :class="[$route.name === 'Networkconfiguration' ? activeClass : inactiveClass]"
+          :class="[$route.name === 'NetworkConfiguration' ? activeClass : inactiveClass]"
           to="/network-configuration"
         >
           <svg
@@ -66,8 +66,8 @@
         </router-link>
         <router-link
           class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4"
-          :class="[/network-setup/.test($route.path) ? activeClass : inactiveClass]"
-          to="/network-setup/organization"
+          :class="[$route.name === 'NetworkSetup' ? activeClass : inactiveClass]"
+          to="/network-setup"
         >
           <svg
             class="h-5 w-5"

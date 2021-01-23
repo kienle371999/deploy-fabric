@@ -2,17 +2,17 @@
   <div class="mt-8">
     <div class="mt-4">
       <div class="p-6 bg-white rounded-md shadow-md">
-        <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Network Configuration'}}</h3>
+        <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Network Configuration' }}</h3>
         <form @submit.prevent="register">
           <div class="pt-8 pl-8 w-2/5">
-            <label class="text-gray-700" for="org_name">{{ 'Network Name'}}</label>
+            <label class="text-gray-700" for="org_name">{{ 'Network' }}</label>
             <input class="form-input w-full mt-2 rounded-md focus:border-indigo-600" type="text" v-model="network_name"/>
           </div>
           <div class="m-8 border-2 border-gray-500">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-3/5 pt-8 pl-8"
               v-for="(org, index) in organizations" :key="index">
               <div>
-                <label class="text-gray-700" for="org_name">{{ 'Organization Name'}}</label>
+                <label class="text-gray-700" for="org_name">{{ 'Organization' }}</label>
                 <input class="form-input w-full mt-2 rounded-md focus:border-indigo-600" type="text" v-model="organizations[index].org_name"/>
               </div>
               <div>
@@ -28,7 +28,7 @@
           <div class="m-8 border-2 border-gray-500">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-3/5 pt-8 pl-8 pb-8">
               <div>
-                <label class="text-gray-700" for="org_name">{{ 'Order Name'}}</label>
+                <label class="text-gray-700" for="org_name">{{ 'Order' }}</label>
                 <input class="form-input w-full mt-2 rounded-md focus:border-indigo-600" type="text" v-model="order.order_name"/>
               </div>
               <div>

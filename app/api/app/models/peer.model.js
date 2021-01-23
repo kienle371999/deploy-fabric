@@ -2,17 +2,17 @@ const mongoose = require("mongoose")
 const { Schema } = mongoose
 
 const PeerSchema = new Schema({
-  org_id: {
+  organization: {
     type: Schema.Types.ObjectId,
     ref: 'Organization',
     require: true
   },
-  network_id: {
+  network: {
     type: Schema.Types.ObjectId,
     ref: 'Network',
     require: true
   },
-  channel_id: [{
+  channel: [{
     type: Schema.Types.ObjectId,
     ref: 'Channel'
   }],

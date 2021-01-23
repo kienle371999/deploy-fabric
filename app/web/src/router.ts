@@ -10,10 +10,8 @@ import Modal from "./views/Modal.vue";
 import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
-import Networkconfiguration from "./views/Networkconfiguration.vue";
-import NetworkSetupOrg from "./views/networksetup/NetworkSetupOrg.vue";
-import NetworkSetupPeer from "./views/networksetup/NetworkSetupPeer.vue";
-import NetworkSetupOrder from "./views/networksetup/NetworkSetupOrder.vue";
+import NetworkConfiguration from "./views/NetworkConfiguration.vue";
+import NetworkSetup from "./views/NetworkSetup.vue";
 
 
 const routes: RouteRecordRaw[] = [
@@ -60,23 +58,13 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/network-configuration",
-    name: "Networkconfiguration",
-    component: Networkconfiguration,
+    name: "NetworkConfiguration",
+    component: NetworkConfiguration,
   },
   {
-    path: "/network-setup/organization",
-    name: "NetworkSetupOrg",
-    component: NetworkSetupOrg,
-  },
-  {
-    path: "/network-setup/peer",
-    name: "NetworkSetupPeer",
-    component: NetworkSetupPeer,
-  },
-  {
-    path: "/network-setup/order",
-    name: "NetworkSetupOrder",
-    component: NetworkSetupOrder,
+    path: "/network-setup",
+    name: "NetworkSetup",
+    component: NetworkSetup,
   }
 ];
 

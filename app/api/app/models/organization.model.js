@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 const { Schema } = mongoose
 
 const OrgaizationSchema = new Schema({
-    network_id: {
+    network: {
         type: Schema.Types.ObjectId,
         ref: 'Network',
         required: true

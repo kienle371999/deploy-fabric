@@ -36,7 +36,6 @@ class Authenticator {
 
   _getAuthToken() {
     const access_token = JSON.parse(localStorageSetting._getAccessToken())
-    console.log("Authenticator -> _getAuthToken -> access_token", access_token)
     return access_token 
   }
 }

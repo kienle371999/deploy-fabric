@@ -1,7 +1,14 @@
 <template>
-  <component :is="layout">
-    <router-view />
-  </component>
+  <Suspense>
+    <template #default>
+      <component :is="layout">
+        <router-view />
+      </component>
+    </template>
+    <template #fallback>
+      <div>Loading....</div>
+    </template>
+  </Suspense>
 </template>
 
 <script lang="ts">
