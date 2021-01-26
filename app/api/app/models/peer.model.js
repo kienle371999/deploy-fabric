@@ -33,6 +33,10 @@ const PeerSchema = new Schema({
     type: String,
     maxlength: 255
   },
+  couchdb_port: {
+    type: String,
+    maxlength: 255
+  },
   status: {
     type: String,
     maxlength: 255,

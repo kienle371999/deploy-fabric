@@ -1,9 +1,16 @@
-const { status, role, model } = require('../../utils/constant')
+const { status, role, model, domain } = require('../../utils/constant')
+const { ObjectId } = require('mongoose').Types
 const Network = require('../../models/network.model')
 const Organization = require('../../models/organization.model')
 const Peer = require('../../models/peer.model')
 const User = require('../../models/user.model')
-
+const yaml = require('js-yaml')
+const _ = require('lodash')
+const fs = require('fs')
+const { spawnSync } = require("child_process")
+const util = require('util')
+// const spawn = util.promisify(require('child_process').spawn)
+ 
 const _vArgs = (arg) => {
   if(typeof arg !== 'string' || arg.length === 0) return false
   return true
@@ -93,7 +100,6 @@ const getNetwork = async(args) => {
   try {
     if(networkArg === validNetworkArg[0]) {
       const orgs = await Organization.find({ network: network._id, role: role.organization })
-      if(!Array.isArray(orgs) || orgs.length === 0) throw new Error('Organization is not found')
       return orgs
     }
     else if(networkArg === validNetworkArg[1]) {
@@ -104,7 +110,6 @@ const getNetwork = async(args) => {
         match: { role: role.organization },
         select: 'name'
       })
-      if(!Array.isArray(peers) || peers.length === 0) throw new Error('Peer is not found')
       return peers.filter(peer => peer.organization)
     }
     else if(networkArg === validNetworkArg[2]) {
@@ -115,7 +120,6 @@ const getNetwork = async(args) => {
         match: { role: role.order },
         select: 'name'
       })
-      if(!Array.isArray(peerOrders) || peerOrders.length === 0) throw new Error('Order is not found')
       return peerOrders.filter(peerOrder => peerOrder.organization)
     }
   }
@@ -136,6 +140,7 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.organization)) throw new Error('Organization Name must be non-empty')
     if(!_vArgs(networkData.ca_username)) throw new Error('CA Username must be non-empty')
     if(!_vArgs(networkData.ca_password)) throw new Error('CA Password must be non-empty')
+    if(!_vArgs(networkData.ca_port)) throw new Error('CA Port must be non-empty')
 
     try {
       const vOrg = await Organization.findById(networkData._id)
@@ -144,6 +149,7 @@ const updateNetwork = async(args) => {
       vOrg.name = networkData.organization
       vOrg.ca_username = networkData.ca_username
       vOrg.ca_password = networkData.ca_password
+      vOrg.ca_port = networkData.ca_port
       return vOrg.save()
     }
     catch(error) {
@@ -156,6 +162,7 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.peer)) throw new Error('Peer Name must be non-empty')
     if(!_vArgs(networkData.couchdb_username)) throw new Error('Couch DB Username must be non-empty')
     if(!_vArgs(networkData.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
+    if(!_vArgs(networkData.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
 
     try {
       const vPeer = await Peer.findById(networkData._id)
@@ -165,6 +172,7 @@ const updateNetwork = async(args) => {
       vPeer.name = networkData.peer 
       vPeer.couchdb_username = networkData.couchdb_username 
       vPeer.couchdb_password = networkData.couchdb_password
+      vPeer.couchdb_port = networkData.couchdb_port
       return vPeer.save()
     }
     catch(error) {
@@ -220,9 +228,16 @@ const deleteNetwork = async(args) => {
 
   if(networkArg === validNetworkArg[1]) {
     if(!_vArgs(networkData._id)) throw new Error('Peer ID must be non-empty') 
+    if(!_vArgs(networkData.organization_id)) throw new Error('Organization ID must be non-empty') 
 
     try {
-      return await Peer.findByIdAndDelete(networkData._id)
+      const deletedPeer = await Peer.findByIdAndDelete(networkData._id)
+      const peerOrg = await Peer.find({ organization: new ObjectId(networkData.organization_id) })
+      if(!Array.isArray(peerOrg) || peerOrg.length === 0) {
+        await Organization.findByIdAndDelete(networkData.organization_id)
+        return deletedPeer
+      }
+      return deletedPeer
     }
     catch(error) {
       throw new Error(error.message)
@@ -234,10 +249,89 @@ const deleteNetwork = async(args) => {
   }
 }
 
+const startNetwork = async(args) => {
+  const { networkId } = args
+  if(!_vArgs(networkId)) throw new Error('Network ID must be non-empty')
+  const network = await Network.findById(networkId)
+  console.log("startNetwork -> network", network)
+  if(!network) throw new Error('Network is not found')
+
+  const templateConfig = { orgs: [] }
+  const organizations = await Organization.aggregate([
+    { 
+      $match: {
+        network: new ObjectId(networkId),
+        role: role.organization
+      } 
+    },
+    {
+      $lookup: {
+        from: 'peers',
+        localField: '_id',
+        foreignField: 'organization',
+        as: 'peers'
+      }
+    }
+  ])
+
+  _.each(organizations, (org, index) => {
+    if(!_vArgs(org.ca_username)) throw new Error('CA Username must be non-empty')
+    if(!_vArgs(org.ca_password)) throw new Error('CA Password must be non-empty')
+    if(!_vArgs(org.ca_port)) throw new Error('CA Port must be non-empty')
+
+    templateConfig.orgs.push({ 
+      Name: org.name, 
+      Domain: org.name.concat(`.${domain}`), 
+      PeerCount: 2, 
+      CA: {
+        username: org.ca_username,
+        password: org.ca_password,
+        port: parseInt(org.ca_port)
+      },
+      Peers: [],
+      UserCount: 1
+    })
+
+    _.each(org.peers, (peer) => {
+      if(!_vArgs(peer.couchdb_username)) throw new Error('Couch DB Username must be non-empty')
+      if(!_vArgs(peer.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
+      if(!_vArgs(peer.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
+  
+      templateConfig.orgs[index].Peers.push({
+        Domain: peer.name.concat(`.${peer.organization.name}.${domain}`),
+        CouchDB: {
+          usename: peer.couchdb_username,
+          password: peer.couchdb_password,
+          port: parseInt(peer.couchdb_port)
+        }
+      })
+    })
+  })
+
+  const yamlStr = yaml.safeDump(templateConfig)
+  console.log("startNetwork -> yamlStr", yamlStr)
+  fs.writeFileSync('network-config.yaml', yamlStr, 'utf8')
+  const configPath = process.env.PWD + '/network-config.yaml'
+
+  const res = spawnSync('bash', ['../../../create-network.sh', network.name.toLowerCase(), configPath])
+  console.log("startNetwork -> res", res)
+  if(res.status !== 0) {
+    console.log('Error', res.stderr.toString())
+    process.exit()
+  }
+  else {
+    console.log('System-data', res.stdout.toString())
+    console.log('Blockchain-data', res.stderr.toString())
+    await Network.updateOne({ status: status.running })
+    return 'Successfully create network'
+  }
+}
+
 module.exports = {
     addNetwork,
     getNetwork,
     updateNetwork,
-    deleteNetwork
+    deleteNetwork,
+    startNetwork
 }
 

@@ -25,6 +25,10 @@ const OrgaizationSchema = new Schema({
         type: String,
         maxlength: 255
     },
+    ca_port: {
+        type: String,
+        maxlength: 255
+    }
 }, { timestamps: true })
 
 const Organization = mongoose.model('Organization', OrgaizationSchema)

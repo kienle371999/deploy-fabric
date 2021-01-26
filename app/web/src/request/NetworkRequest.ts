@@ -1,3 +1,4 @@
+import { INetwork, IParams } from '../hooks/useTableData'
 import BaseRequest from "./foundation/BaseRequest"
 
 class NetworkRequest extends BaseRequest {
@@ -9,9 +10,21 @@ class NetworkRequest extends BaseRequest {
         const url = this.getURL('/api/network')
         return this.post(url, params)
     }
-    async getNetwork(networkArg: String) {
+    async getNetwork(networkArg: string) {
         const url = this.getURL(`/api/network/${networkArg}`)
         return this.get(url)
+    }
+    async editNetwork(params: IParams) {
+        const url = this.getURL(`/api/network/${params.type}`)
+        return this.put(url, params.data)
+    }
+    async deleteNetwork(params: IParams) {
+        const url = this.getURL(`/api/network/${params.type}`)
+        return this.delete(url, params.data)
+    }
+    async startNetwork(params: INetwork) {
+        const url = this.getURL(`/api/start-network/${params._id}`)
+        return this.post(url)
     }
 }
 

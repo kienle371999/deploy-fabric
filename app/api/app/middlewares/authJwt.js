@@ -3,7 +3,6 @@ const config = require("../config/auth.config.js");
 
 const authJwt = (req, res, next) => {
   let bearerToken = req.headers.authorization;
-  console.log("authJwt -> bearerToken", bearerToken)
 
   if (!bearerToken) {
     return res.status(403).send({ message: "No token provided!" });

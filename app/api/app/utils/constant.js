@@ -14,3 +14,5 @@ exports.model = {
     order: 'order',
     peer: 'peer'
 }
+
+exports.domain = 'example.com'
