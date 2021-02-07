@@ -2,13 +2,22 @@ const express = require('express')
 const { commonError, handleStatus } = require('../../library/response')
 const authJwt = require('../../middlewares/authJwt')
 const { success } = require('../../utils/messageCode')
-const { addNetwork, getNetwork, updateNetwork, deleteNetwork, startNetwork } = require('./network.service')
+const { addNetwork, getNetwork, updateNetwork, deleteNetwork, startNetwork, getNetworkById } = require('./network.service')
 
 const api = express.Router()
-api.get('/network/:networkArg', authJwt, async(req, res) => {
+api.get('/network', authJwt, async(req, res) => {
   try {
-    const { networkArg } = req.params
-    const result = await getNetwork({ networkArg, ...req.body })
+    const result = await getNetwork(req.body)
+    return handleStatus(res, success(result))
+  }
+  catch(error) {
+    return commonError(res, error)
+  }
+})
+api.get('/network/:networkId/:networkArg', authJwt, async(req, res) => {
+  try {
+    const { networkId, networkArg } = req.params
+    const result = await getNetworkById({ networkId, networkArg, ...req.body })
     return handleStatus(res, success(result))
   }
   catch(error) {
@@ -18,6 +27,7 @@ api.get('/network/:networkArg', authJwt, async(req, res) => {
 
 api.post('/network', authJwt, async(req, res) => {
   try {
+    console.log('12233')
     const result = await addNetwork(req.body)
     return handleStatus(res, success(result))
   }

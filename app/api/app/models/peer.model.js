@@ -12,10 +12,6 @@ const PeerSchema = new Schema({
     ref: 'Network',
     require: true
   },
-  channel: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Channel'
-  }],
   name: {
     type: String,
     maxlength: 255,

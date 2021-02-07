@@ -99,5 +99,5 @@ export default defineComponent({
 
     return { organizations, order, network_name, addOrg, save }
   }
-});
+})
 </script>

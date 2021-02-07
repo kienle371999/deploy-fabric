@@ -288,7 +288,7 @@ Profiles:
 {{- range $i, $org := .Values.orgs }}
                     - *{{ $org.Name }}
 {{- end }}
-    mychannel:
+    {{ $.Values.channel.name }}:
         Consortium: SampleConsortium
         <<: *ChannelDefaults
         Application:

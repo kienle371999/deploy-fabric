@@ -2,7 +2,7 @@
   <div class="mt-8">
     <div class="mt-4">
       <div class="pb-6 pt-6 pl-12 pr-12 bg-white rounded-md shadow-md">
-        <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Network' }}</h3>
+        <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Channel' }}</h3>
         <div class="align-middle mt-10 inline-block w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
             <table class="table-fixed w-full">
               <thead>

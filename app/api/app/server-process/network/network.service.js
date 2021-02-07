@@ -9,6 +9,7 @@ const _ = require('lodash')
 const fs = require('fs')
 const { spawnSync } = require("child_process")
 const util = require('util')
+const Promise = require('bluebird')
 // const spawn = util.promisify(require('child_process').spawn)
  
 const _vArgs = (arg) => {
@@ -33,6 +34,7 @@ const addNetwork = async(args) => {
       if(network) throw new Error('Duplicate Network')
     }
     catch(error) {
+      console.log("🚀 ~ file: network.service.js ~ line 37 ~ validateArgs ~ error", error)
       throw new Error(error.message)
     }
     return args
@@ -45,23 +47,22 @@ const addNetwork = async(args) => {
       name: network_name,
       status: status.new
     })
-  
-    organizations.forEach(async(org, index) => {
+    await Promise.each(organizations, async(org) => {
       const newOrg = await Organization.create({ 
         network: newNetwork._id,
         name: org.org_name,
         role: role.organization
       })
       for (var i = 0; i < parseInt(org.number_peers); i++) {
-        await Peer.create({
+        await Peer.create({ 
           organization: newOrg._id,
           network: newNetwork._id,
           name: `peer${i}`,
           status: status.new
         })
-      }    
+      }
     })
-
+    
     const orderOrg = await Organization.create({
       network: newNetwork._id,
       name: order.order_name,
@@ -81,6 +82,43 @@ const addNetwork = async(args) => {
 }
 
 const getNetwork = async(args) => {
+  const { user } = args
+  const vUser = await User.findById(user._id)
+  if(!vUser) throw new Error('User must be registered')
+
+  try {
+    const networks = await Network.aggregate(
+      [
+        {
+          $match: {
+            user: new ObjectId(user._id)
+          } 
+        },
+        {
+          $lookup: {
+            from: 'organizations',
+            localField: '_id',
+            foreignField: 'network',
+            as: 'organizations'
+          }
+        }
+      ]
+    )
+    return networks.map(network => {
+      const vOrg = []
+      _.each(network.organizations, (org) => {
+        if(org.role === role.organization) vOrg.push(org) 
+      })
+      network.organizations = vOrg
+      return network
+    })
+  }
+  catch(error) {
+    throw new Error(error.message)
+  }
+}
+
+const getNetworkById = async(args) => {
   const validNetworkArg = [model.organization, model.peer, model.order]
 
   const validateArgs = async(args) => {
@@ -93,8 +131,8 @@ const getNetwork = async(args) => {
     return args
   }
   
-  const { user, networkArg } = await validateArgs(args)
-  const network = await Network.findOne({ user: user._id })
+  const { networkId, networkArg } = await validateArgs(args)
+  const network = await Network.findById(networkId)
   if(!network) throw new Error('Network must be created')
 
   try {
@@ -256,80 +294,85 @@ const startNetwork = async(args) => {
   console.log("startNetwork -> network", network)
   if(!network) throw new Error('Network is not found')
 
-  const templateConfig = { orgs: [] }
-  const organizations = await Organization.aggregate([
-    { 
-      $match: {
-        network: new ObjectId(networkId),
-        role: role.organization
-      } 
-    },
-    {
-      $lookup: {
-        from: 'peers',
-        localField: '_id',
-        foreignField: 'organization',
-        as: 'peers'
-      }
-    }
-  ])
-
-  _.each(organizations, (org, index) => {
-    if(!_vArgs(org.ca_username)) throw new Error('CA Username must be non-empty')
-    if(!_vArgs(org.ca_password)) throw new Error('CA Password must be non-empty')
-    if(!_vArgs(org.ca_port)) throw new Error('CA Port must be non-empty')
-
-    templateConfig.orgs.push({ 
-      Name: org.name, 
-      Domain: org.name.concat(`.${domain}`), 
-      PeerCount: 2, 
-      CA: {
-        username: org.ca_username,
-        password: org.ca_password,
-        port: parseInt(org.ca_port)
+  try {
+    const templateConfig = { orgs: [] }
+    const organizations = await Organization.aggregate([
+      { 
+        $match: {
+          network: new ObjectId(networkId),
+          role: role.organization
+        } 
       },
-      Peers: [],
-      UserCount: 1
-    })
-
-    _.each(org.peers, (peer) => {
-      if(!_vArgs(peer.couchdb_username)) throw new Error('Couch DB Username must be non-empty')
-      if(!_vArgs(peer.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
-      if(!_vArgs(peer.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
-  
-      templateConfig.orgs[index].Peers.push({
-        Domain: peer.name.concat(`.${peer.organization.name}.${domain}`),
-        CouchDB: {
-          usename: peer.couchdb_username,
-          password: peer.couchdb_password,
-          port: parseInt(peer.couchdb_port)
+      {
+        $lookup: {
+          from: 'peers',
+          localField: '_id',
+          foreignField: 'organization',
+          as: 'peers'
         }
+      }
+    ])
+
+    _.each(organizations, (org, index) => {
+      if(!_vArgs(org.ca_username)) throw new Error('CA Username must be non-empty')
+      if(!_vArgs(org.ca_password)) throw new Error('CA Password must be non-empty')
+      if(!_vArgs(org.ca_port)) throw new Error('CA Port must be non-empty')
+
+      templateConfig.orgs.push({ 
+        Name: org.name, 
+        Domain: org.name.concat(`.${domain}`), 
+        PeerCount: 2, 
+        CA: {
+          username: org.ca_username,
+          password: org.ca_password,
+          port: parseInt(org.ca_port)
+        },
+        Peers: [],
+        UserCount: 1
+      })
+
+      _.each(org.peers, (peer) => {
+        if(!_vArgs(peer.couchdb_username)) throw new Error('Couch DB Username must be non-empty')
+        if(!_vArgs(peer.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
+        if(!_vArgs(peer.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
+    
+        templateConfig.orgs[index].Peers.push({
+          Domain: peer.name.concat(`.${peer.organization.name}.${domain}`),
+          CouchDB: {
+            usename: peer.couchdb_username,
+            password: peer.couchdb_password,
+            port: parseInt(peer.couchdb_port)
+          }
+        })
       })
     })
-  })
 
-  const yamlStr = yaml.safeDump(templateConfig)
-  console.log("startNetwork -> yamlStr", yamlStr)
-  fs.writeFileSync('network-config.yaml', yamlStr, 'utf8')
-  const configPath = process.env.PWD + '/network-config.yaml'
+    const yamlStr = yaml.safeDump(templateConfig)
+    console.log("startNetwork -> yamlStr", yamlStr)
+    fs.writeFileSync('network-config.yaml', yamlStr, 'utf8')
+    const configPath = process.env.PWD + '/network-config.yaml'
 
-  const res = spawnSync('bash', ['../../../create-network.sh', network.name.toLowerCase(), configPath])
-  console.log("startNetwork -> res", res)
-  if(res.status !== 0) {
-    console.log('Error', res.stderr.toString())
-    process.exit()
+    const res = spawnSync('bash', ['../../../create-network.sh', network.name.toLowerCase(), configPath])
+    if(res.status !== 0) {
+      console.log('Error', res.stderr.toString())
+      process.exit()
+    }
+    else {
+      console.log('System-data', res.stdout.toString())
+      console.log('Blockchain-data', res.stderr.toString())
+      await Network.updateOne({ status: status.running })
+      return 'Successfully create network'
+    }
   }
-  else {
-    console.log('System-data', res.stdout.toString())
-    console.log('Blockchain-data', res.stderr.toString())
-    await Network.updateOne({ status: status.running })
-    return 'Successfully create network'
+  catch(error) {
+    throw new Error(error.message)
   }
 }
 
 module.exports = {
     addNetwork,
     getNetwork,
+    getNetworkById,
     updateNetwork,
     deleteNetwork,
     startNetwork

@@ -11,7 +11,11 @@ const ChaincodeSchema = new Schema({
     type: String,
     maxlength: 255,
     required: true
-  }
+  },
+  peers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Peer'
+  }]
 }, { timestamps: true })
 
 const Chaincode = mongoose.model('Chaincode', ChaincodeSchema)

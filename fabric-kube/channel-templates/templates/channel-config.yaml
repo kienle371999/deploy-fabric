@@ -1,0 +1,8 @@
+channels:
+  - name: {{ $.Values.channel.name }}
+  # all peers in these organizations will join the channel
+    orgs: [
+{{- range $i, $orgName := .Values.channel.orgs }}
+    {{- if $i }}, {{- end }}
+    {{- $orgName }}
+{{- end }}]

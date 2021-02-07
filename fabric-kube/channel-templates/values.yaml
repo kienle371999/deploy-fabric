@@ -1,0 +1,5 @@
+channel:
+  name: blockchannel
+  orgs:
+    - Org1
+    - Org2

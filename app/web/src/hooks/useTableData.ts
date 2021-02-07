@@ -37,8 +37,8 @@ export interface IParams {
   type: string
 }
 
-export async function useTableData() {
-  const orgs = await RequestNetwork.getNetwork('organization')
+export async function useTableData(networkId) {
+  const orgs = await RequestNetwork.getNetworkById(networkId, 'organization')
   const vOrgs: IOrganization[] = []
   orgs.forEach(org => {
     vOrgs.push({ 
@@ -51,7 +51,7 @@ export async function useTableData() {
     })
   })
 
-  const peers = await RequestNetwork.getNetwork('peer')
+  const peers = await RequestNetwork.getNetworkById(networkId, 'peer')
   const vPeers: IPeer[] = []
   peers.forEach(peer => {
     vPeers.push({ 
@@ -67,7 +67,7 @@ export async function useTableData() {
     })
   })
 
-  const orders = await RequestNetwork.getNetwork('order')
+  const orders = await RequestNetwork.getNetworkById(networkId, 'order')
   const vOrders: IOrder[] = []
   orders.forEach(order => {
     vOrders.push({ 

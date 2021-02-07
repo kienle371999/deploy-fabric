@@ -56,12 +56,13 @@ flow:
     parallel: true
     function: '{"function":"ping","Args":[""]}'
 
+
 chaincode:
   version: "1"
   language: node
 
-# aws configure
-aws:
-  aws_key: AKIAUIXRD5SBJ57VWZ7U
-  aws_secret: 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
-  aws_region: ap-southeast-1
+# # aws configure
+# aws:
+#   aws_key: AKIAUIXRD5SBJ57VWZ7U
+#   aws_secret: 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
+#   aws_region: ap-southeast-1

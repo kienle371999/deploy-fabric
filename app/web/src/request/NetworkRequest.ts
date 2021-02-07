@@ -10,8 +10,12 @@ class NetworkRequest extends BaseRequest {
         const url = this.getURL('/api/network')
         return this.post(url, params)
     }
-    async getNetwork(networkArg: string) {
-        const url = this.getURL(`/api/network/${networkArg}`)
+    async getNetwork() {
+        const url = this.getURL('/api/network/')
+        return this.get(url)
+    }
+    async getNetworkById(networkId:string, networkArg: string) {
+        const url = this.getURL(`/api/network/${networkId}/${networkArg}`)
         return this.get(url)
     }
     async editNetwork(params: IParams) {
