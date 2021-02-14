@@ -34,13 +34,20 @@
   </div>
 </template>
 
-<script>
-import NetworkRequest from "../request/NetworkRequest"
+<script lang="ts">
+import { NetworkRequest } from "../request"
+import { defineComponent } from "vue"
 
-export default {
+export default defineComponent({
   props: {
-    data: Object,
-    type: String
+    data: {
+      type: Object,
+      required: true
+    },
+    type: {
+      type: String,
+      required: true
+    }
   },
   emits: ['close'],
   setup (props, context) {
@@ -50,5 +57,5 @@ export default {
     }
     return { props, save }
   }
-}
+})
 </script>

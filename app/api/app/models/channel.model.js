@@ -7,14 +7,13 @@ const ChannelSchema = new Schema({
     maxlength: 255,
     required: true
   },
-  status: {
-    type: String,
-    maxlength: 255,
-    required: true
-  },
-  peers: [{
+  network: {
     type: Schema.Types.ObjectId,
-    ref: 'Peer'
+    ref: 'Network'
+  },
+  organizations: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Organization'
   }]
 }, { timestamps: true })
 

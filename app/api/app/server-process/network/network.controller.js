@@ -27,7 +27,6 @@ api.get('/network/:networkId/:networkArg', authJwt, async(req, res) => {
 
 api.post('/network', authJwt, async(req, res) => {
   try {
-    console.log('12233')
     const result = await addNetwork(req.body)
     return handleStatus(res, success(result))
   }

@@ -3,7 +3,6 @@ import localStorageSetting from "./utils/LocalStorageSetting";
 
 import Dashboard from "./views/Dashboard.vue";
 import Forms from "./views/Forms.vue";
-import Tables from "./views/Tables.vue";
 import UIElements from "./views/UIElements.vue";
 import Login from "./views/Login.vue";
 import Modal from "./views/Modal.vue";
@@ -37,11 +36,6 @@ const routes: RouteRecordRaw[] = [
     path: "/cards",
     name: "Cards",
     component: Card,
-  },
-  {
-    path: "/tables",
-    name: "Tables",
-    component: Tables,
   },
   {
     path: "/ui-elements",

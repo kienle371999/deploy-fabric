@@ -8,9 +8,7 @@ const yaml = require('js-yaml')
 const _ = require('lodash')
 const fs = require('fs')
 const { spawnSync } = require("child_process")
-const util = require('util')
 const Promise = require('bluebird')
-// const spawn = util.promisify(require('child_process').spawn)
  
 const _vArgs = (arg) => {
   if(typeof arg !== 'string' || arg.length === 0) return false
@@ -348,9 +346,8 @@ const startNetwork = async(args) => {
     })
 
     const yamlStr = yaml.safeDump(templateConfig)
-    console.log("startNetwork -> yamlStr", yamlStr)
-    fs.writeFileSync('network-config.yaml', yamlStr, 'utf8')
-    const configPath = process.env.PWD + '/network-config.yaml'
+    fs.writeFileSync('yaml-generation/network-config.yaml', yamlStr, 'utf8')
+    const configPath = process.env.PWD.concat('/yaml-generation/network-config.yaml')
 
     const res = spawnSync('bash', ['../../../create-network.sh', network.name.toLowerCase(), configPath])
     if(res.status !== 0) {

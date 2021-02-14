@@ -165,9 +165,10 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from "vue";
-import NetworkRequest from "../request/NetworkRequest";
+import { NetworkRequest } from "../request";
 import { EditableModal, DeleteModal } from "../modals";
-import { useTableData, IOrganization, IPeer, IOrder } from "../hooks/useTableData";
+import { IOrganization, IPeer, IOrder } from "../hooks/useInterface";
+import { useNetworkData } from "../hooks/useNetworkData";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
@@ -189,13 +190,11 @@ export default defineComponent({
     const peerTableData = ref<IPeer[]>([])
 
     async function crawlData() {
-      const { organizations, orders, peers } = await useTableData(route.params.networkId)
+      const { organizations, orders, peers } = await useNetworkData(route.params.networkId)
       organizationTableData.value = organizations
       orderTableData.value = orders
       peerTableData.value = peers
     }
-
-    console.log('--------', organizationTableData)
 
     onMounted(async() => {
       await crawlData()

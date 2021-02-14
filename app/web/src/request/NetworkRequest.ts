@@ -1,4 +1,4 @@
-import { INetwork, IParams } from '../hooks/useTableData'
+import { INetwork, IParams } from '../hooks/useInterface'
 import BaseRequest from "./foundation/BaseRequest"
 
 class NetworkRequest extends BaseRequest {

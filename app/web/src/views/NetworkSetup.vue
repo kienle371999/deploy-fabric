@@ -18,7 +18,8 @@
                     <router-link
                       :class="[$route.name === 'NetworkElement' ? activeClass : inactiveClass]"
                       :to="'/network-setup/' + element._id">
-                    <span class="hover:text-blue-700">{{ element.name }}</span>
+                      <span class="hover:text-blue-700">{{ element.name }}</span>
+                    </router-link>
                   </td>
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
                     <div v-for="(org, index) in element.organizations" :key="index">
@@ -54,7 +55,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import NetworkRequest from "../request/NetworkRequest"
+import { NetworkRequest } from "../request"
 
 export default defineComponent({
   async setup() {
