@@ -9,8 +9,11 @@ echo "Creating configuration files for project $PROJECT"
 
 cd $mydir/
 
-# Clean previous network
-./clean.sh
+# Remove unnecessity 
+./clean.sh $PROJECT
+
+# Create new namspace
+kubectl create namespace "$PROJECT-namespace"
 
 PROJECT_FOLDER=$PWD/networks/$PROJECT
 
@@ -25,7 +28,7 @@ helm template config-templates/ -s templates/network.yaml | sed -n '1!p'  > $PRO
 echo "Start creating network..."
 # helm template hlf-kube/ -s templates/ca-deployment.yaml -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml --values=$PROJECT_FOLDER/hlf-kube-value.yaml  | sed -n '1!p' > $PROJECT_FOLDER/ca222.yaml 
 
-helm install $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml --values=$PROJECT_FOLDER/hlf-kube-value.yaml --wait
+helm install $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml --values=$PROJECT_FOLDER/hlf-kube-value.yaml -n "$PROJECT-namespace" --wait 
 ./collect_host_aliases.sh $PROJECT_FOLDER/
 echo "Updating host aliases..."
-helm upgrade $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml --values=$PROJECT_FOLDER/hlf-kube-value.yaml --wait
+helm upgrade $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml -n "$PROJECT-namespace" --values=$PROJECT_FOLDER/hlf-kube-value.yaml --wait 

@@ -6,14 +6,19 @@
     "build": "cross-env NODE_ENV=production vite build"
   },
   "dependencies": {
+    "@braid/vue-formulate": "^2.5.0",
+    "@meforma/vue-toaster": "^1.2.2",
     "@types/lodash": "^4.14.167",
     "@vueform/multiselect": "^1.3.2",
     "axios": "^0.21.1",
     "tailwindcss": "^1.9.6",
     "uiv": "^1.2.1",
+    "vee-validate": "^4.1.19",
     "vue": "next",
     "vue-notification": "^1.3.20",
-    "vue-router": "^4.0.0-beta.13"
+    "vue-router": "^4.0.0-beta.13",
+    "vue3-loading-overlay": "0.0.0",
+    "yup": "^0.32.8"
   },
   "devDependencies": {
     "@tailwindcss/custom-forms": "^0.2.1",

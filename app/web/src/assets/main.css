@@ -8,6 +8,8 @@
 
 @import 'tailwindcss/utilities';
 
+@import 'vue3-loading-overlay/dist/vue3-loading-overlay.css';
+
 ::-webkit-scrollbar {
   width: 7px;
 }

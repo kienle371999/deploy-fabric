@@ -4,23 +4,23 @@ import auth from './Authenticator'
 import localStorageSetting from '../../utils/LocalStorageSetting'
 
 class BaseRequest {
-  async get(url: String, data: Object = {}) {
+  async get(url: string, data: Object = {}) {
     return this._doRequest('GET', url, { data })
   }
 
-  async delete(url: String, data:Object = {}) {
+  async delete(url: string, data:Object = {}) {
     return this._doRequest('DELETE', url, { data })
   }
 
-  async put(url: String, data: Object = {}) {
+  async put(url: string, data: Object = {}) {
     return this._doRequest('PUT', url, { data })
   }
 
-  async post(url:String, data: Object = {}) {
+  async post(url:string, data: Object = {}) {
     return this._doRequest('POST', url, { data })
   }
 
-  async _doRequest(method: String, url: String, paramsConfig: Object) {
+  async _doRequest(method: string, url: string, paramsConfig: Object) {
     const headers = {
       'Accept': 'application/json',
       'Content-type': 'application/json',
@@ -41,7 +41,7 @@ class BaseRequest {
       if (error.response.status === 401) {
         localStorageSetting._clearToken()
       }
-      return 
+      throw new Error(error.response.data) 
     }
   }
 }

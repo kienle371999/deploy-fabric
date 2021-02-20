@@ -178,6 +178,9 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.ca_password)) throw new Error('CA Password must be non-empty')
     if(!_vArgs(networkData.ca_port)) throw new Error('CA Port must be non-empty')
 
+    const vCAPort = await Organization.findOne({ ca_port: networkData.ca_port })
+    const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
+    if(vCAPort.id !== networkData._id || vCouchDBPort) throw new Error('Duplicate CA Port')
     try {
       const vOrg = await Organization.findById(networkData._id)
       if(!vOrg) throw new Error('Organization is not found')
@@ -200,6 +203,9 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
     if(!_vArgs(networkData.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
 
+    const vCAPort = await Organization.findOne({ ca_port: networkData.couchdb_port })
+    const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.couchdb_port })
+    if(vCAPort || vCouchDBPort.id !== networkData._id) throw new Error('Duplicate CouchDB Port')
     try {
       const vPeer = await Peer.findById(networkData._id)
   
@@ -335,7 +341,7 @@ const startNetwork = async(args) => {
         if(!_vArgs(peer.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
     
         templateConfig.orgs[index].Peers.push({
-          Domain: peer.name.concat(`.${peer.organization.name}.${domain}`),
+          Domain: peer.name.concat(`.${org.name}.${domain}`),
           CouchDB: {
             usename: peer.couchdb_username,
             password: peer.couchdb_password,
@@ -351,14 +357,14 @@ const startNetwork = async(args) => {
 
     const res = spawnSync('bash', ['../../../create-network.sh', network.name.toLowerCase(), configPath])
     if(res.status !== 0) {
-      console.log('Error', res.stderr.toString())
-      process.exit()
+      console.log('Blockchain Error', res.stderr.toString())
+      throw new Error('Fail to create network')
     }
     else {
       console.log('System-data', res.stdout.toString())
       console.log('Blockchain-data', res.stderr.toString())
-      await Network.updateOne({ status: status.running })
-      return 'Successfully create network'
+      const updatedNetwork = await Network.updateOne({ status: status.running })
+      return updatedNetwork
     }
   }
   catch(error) {

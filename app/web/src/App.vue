@@ -14,8 +14,6 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
-import auth from "./request/foundation/Authenticator";
-import localStorageSetting from "./utils/LocalStorageSetting"
 
 const defaultLayout = "default";
 
@@ -32,3 +30,15 @@ export default defineComponent({
   },
 });
 </script>
+
+
+<style>
+.form-input:focus {
+  border-color: none;
+  box-shadow: 0 0 0 3px rgb(66 153 225 / 50%);
+}
+.form-input.border-red-600:focus {
+  border-color: none;
+  box-shadow: 0 0 0 3px rgb(220 53 69 / 25%);
+}
+</style>

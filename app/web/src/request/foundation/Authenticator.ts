@@ -14,7 +14,7 @@ class Authenticator {
       return user
     }
     catch(error) {
-      return 
+      throw new Error(error.response.data)
     }
   }
 

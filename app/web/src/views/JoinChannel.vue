@@ -37,13 +37,13 @@
         </div>
       </div>
     </div>
-    <channel-modal @close="close"/>
+    <channel-modal v-if="enableModal" @close="close"/>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import { ChannelModal } from '../modals';
+import { defineComponent, ref } from "vue"
+import { ChannelModal } from '../modals'
 import { NetworkRequest, ChannelRequest } from '../request'
 
 export default defineComponent({
@@ -51,7 +51,21 @@ export default defineComponent({
     ChannelModal
   },
   async setup() {
-    
+    const enableModal = ref<Boolean>(false)
+
+    function start() {
+      enableModal.value = true
+    }
+    function close() {
+      enableModal.value = false
+    }
+
+
+    return { 
+      start,
+      enableModal,
+      close
+    }
   }
 })
 </script>

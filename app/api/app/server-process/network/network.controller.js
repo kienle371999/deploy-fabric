@@ -64,7 +64,7 @@ api.post('/start-network/:networkId', async(req, res) => {
     return handleStatus(res, success(result))
   }
   catch(error) {
-    console.log("error", error)
+    console.log("🚀 ~ file: network.controller.js ~ line 67 ~ api.post ~ error", error)
     return commonError(res, error)
   }
 })

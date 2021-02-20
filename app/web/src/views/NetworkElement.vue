@@ -78,7 +78,7 @@
                   <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Organization' }}</th>
                   <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'CouchDB Username' }}</th>
                   <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'CouchDB Password' }}</th>
-                  <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Status' }}</th>
+                  <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'CouchDB Port' }}</th>
                   <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Action' }}</th>
                 </tr>
               </thead>
@@ -125,7 +125,6 @@
                 <tr>
                   <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Peer' }}</th>
                   <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Organization' }}</th>
-                  <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Status' }}</th>
                   <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Action' }}</th>
                 </tr>
               </thead>
@@ -135,9 +134,6 @@
                     <div class="flex items-center">
                       <span>{{ element.peer }}</span>
                     </div>
-                  </td>
-                  <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span>{{ element.order }}</span>
                   </td>
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
                     <span>{{ element.order }}</span>
@@ -170,6 +166,7 @@ import { EditableModal, DeleteModal } from "../modals";
 import { IOrganization, IPeer, IOrder } from "../hooks/useInterface";
 import { useNetworkData } from "../hooks/useNetworkData";
 import { useRoute } from "vue-router";
+import { validateForm } from '../utils/commonLib'
 
 export default defineComponent({
   components: {
@@ -203,23 +200,47 @@ export default defineComponent({
       await crawlData()
     })
 
-    function changeComponent(name) {
+    function changeComponent(name: string) {
       componentName.value = name
     }
-    function editValue(data, type) {
+    function editValue(data: string, type: string) {
       passedData.value = data
       passedType.value = type
       edit.value = true 
     }
 
-    function deleteValue(data, type) {
+    function deleteValue(data: string, type: string) {
       passedData.value = data
       passedType.value = type
       remove.value = true 
     }
 
     async function start() {
-      await NetworkRequest.startNetwork({ _id: '600eb8ea9a4dbcf7a59956b6' , name: 'kien', status: 'New' })
+      let checkComplete: boolean = true
+      organizationTableData.value.forEach(org => {
+        if(!org.ca_username) checkComplete = false
+        if(!org.ca_password) checkComplete = false
+        if(!org.ca_port) checkComplete = false
+      })
+      peerTableData.value.forEach(peer => {
+        if(!peer.couchdb_username) checkComplete = false
+        if(!peer.couchdb_password) checkComplete = false
+        if(!peer.couchdb_port) checkComplete = false 
+      })
+
+      if(!checkComplete) this.$toast.error('Please fill out this form')
+      try {
+        const networkRes = await NetworkRequest.startNetwork(route.params.networkId.toString())
+        // let loader = this.$loading()
+        // loader.show({ loader: 'dots' })
+
+        // setTimeout(() => {
+        //   loader.hide()
+        // }, 2000)   
+      }
+      catch(error) {
+        this.$toast.error(error.message)
+      }
     }
 
     async function close() {

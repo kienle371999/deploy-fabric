@@ -25,12 +25,6 @@ export interface IOrder {
    order: string
 }
 
-export interface INetwork {
-   _id: string
-   name: string
-   status: string
-}
-
 export interface IParams {
    data: Object
    type: string
