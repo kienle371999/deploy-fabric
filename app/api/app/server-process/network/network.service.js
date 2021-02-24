@@ -1,9 +1,10 @@
-const { status, role, model, domain } = require('../../utils/constant')
+const { status, role, model, domain, defaultNetwork } = require('../../utils/constant')
 const { ObjectId } = require('mongoose').Types
 const Network = require('../../models/network.model')
 const Organization = require('../../models/organization.model')
 const Peer = require('../../models/peer.model')
 const User = require('../../models/user.model')
+const Channel = require('../../models/channel.model')
 const yaml = require('js-yaml')
 const _ = require('lodash')
 const fs = require('fs')
@@ -17,28 +18,35 @@ const _vArgs = (arg) => {
 
 const addNetwork = async(args) => {
   const validateArgs = async(args) => {
-    const { network_name, organizations, order } = args
+    const { network_name, organizations, order, channels } = args
 
     if (!_vArgs(network_name)) throw new Error('Network Name must be non-empty')
     organizations.forEach(org => {
       if(!_vArgs(org.org_name)) throw new Error('Organization Name must be non-empty')
       if(!_vArgs(org.number_peers)) throw new Error('Organization Peers must be non-empty')
     })
+    channels.forEach(channel => {
+      if(!_vArgs(channel.name)) throw new Error('Channel Name must be non-empty')
+      if(!Array.isArray(channel.orgs) || channel.orgs.length === 0) throw new Error('Channel Orgnizations must be array')
+    })
     if (!_vArgs(order.order_name)) throw new Error('Order Name must be non-empty')
     if (!_vArgs(order.number_peers)) throw new Error('Order Peers must be non-empty')
 
     try {
-      const network = await Network.findOne({ name: network_name })
-      if(network) throw new Error('Duplicate Network')
+      const network = await Network.findOneAndDelete({ name: network_name })
+      if(network) await Promise.all([
+        Organization.deleteMany({ network: network._id }), 
+        Peer.deleteMany({ network: network._id }), 
+        Channel.deleteMany({ network: network._id })
+      ])
     }
     catch(error) {
-      console.log("🚀 ~ file: network.service.js ~ line 37 ~ validateArgs ~ error", error)
       throw new Error(error.message)
     }
     return args
   }
 
-  const { network_name, organizations, order, user } = await validateArgs(args)
+  const { network_name, organizations, order, user, channels } = await validateArgs(args)
   try {
     const newNetwork = await Network.create({
       user: user._id,
@@ -72,7 +80,20 @@ const addNetwork = async(args) => {
       name: `peer0`,
       status: status.new
     })
-    return newNetwork
+    const newChannel = await Promise.map(channels, async(channel) => {
+      const alteredOrgIds = await Promise.map(channel.orgs, async(orgName) => {
+        const organization = await Organization.findOne({ name: orgName })
+        return organization._id
+      })
+      const vChannel = await Channel.create({
+        name: channel.name,
+        network: newNetwork._id,
+        organizations: alteredOrgIds
+      })
+      return vChannel
+    })
+
+    return { newNetwork, newChannel }
   }
   catch(error) {
     throw new Error(error.message)
@@ -116,7 +137,7 @@ const getNetwork = async(args) => {
   }
 }
 
-const getNetworkById = async(args) => {
+const getNetworkByArg = async(args) => {
   const validNetworkArg = [model.organization, model.peer, model.order]
 
   const validateArgs = async(args) => {
@@ -129,14 +150,18 @@ const getNetworkById = async(args) => {
     return args
   }
   
-  const { networkId, networkArg } = await validateArgs(args)
-  const network = await Network.findById(networkId)
-  if(!network) throw new Error('Network must be created')
+  const { networkArg } = await validateArgs(args)
+  const network = await Network.findOne({ name: defaultNetwork })
+  if(!network) return []
 
   try {
     if(networkArg === validNetworkArg[0]) {
       const orgs = await Organization.find({ network: network._id, role: role.organization })
-      return orgs
+      const filteredOrgs = await Promise.map(orgs, async(org) => {
+        const peerCount = await Peer.countDocuments({ organization: org._id })
+        return { number_peers: peerCount.toString(), ...org._doc }
+      })
+      return filteredOrgs
     }
     else if(networkArg === validNetworkArg[1]) {
       const peers = await Peer
@@ -292,10 +317,7 @@ const deleteNetwork = async(args) => {
 }
 
 const startNetwork = async(args) => {
-  const { networkId } = args
-  if(!_vArgs(networkId)) throw new Error('Network ID must be non-empty')
-  const network = await Network.findById(networkId)
-  console.log("startNetwork -> network", network)
+  const network = await Network.findOne({ name: defaultNetwork })
   if(!network) throw new Error('Network is not found')
 
   try {
@@ -375,7 +397,7 @@ const startNetwork = async(args) => {
 module.exports = {
     addNetwork,
     getNetwork,
-    getNetworkById,
+    getNetworkByArg,
     updateNetwork,
     deleteNetwork,
     startNetwork

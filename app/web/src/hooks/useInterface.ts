@@ -2,6 +2,7 @@ export interface IOrganization {
     _id: string
     network_id: string
     organization: string
+    number_peers:string
     ca_username: string
     ca_password: string
     ca_port: string
@@ -32,6 +33,5 @@ export interface IParams {
 
 export interface IChannel {
    name: string
-   network: string 
    orgs: string[]
 }

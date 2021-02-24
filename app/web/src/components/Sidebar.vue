@@ -66,7 +66,7 @@
         </router-link>
         <router-link
           class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4"
-          :class="[/network-setup/.test($route.path) ? activeClass : inactiveClass]"
+          :class="[$route.name === 'NetworkSetup' ? activeClass : inactiveClass]"
           to="/network-setup"
         >
           <svg

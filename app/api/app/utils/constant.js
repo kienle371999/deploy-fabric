@@ -16,3 +16,4 @@ exports.model = {
 }
 
 exports.domain = 'example.com'
+exports.defaultNetwork = 'blocktrace'

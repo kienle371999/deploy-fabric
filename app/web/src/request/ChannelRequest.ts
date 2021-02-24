@@ -6,9 +6,9 @@ class ChannelRequest extends BaseRequest {
         const baseUrl = import.meta.env.VITE_SERVER
         return baseUrl.concat(url)
     }
-    async createChannel(params: IChannel) {
+    async getChannel() {
         const url = this.getURL('/api/channel')
-        return this.post(url, params)
+        return this.get(url)
     }
 }
 

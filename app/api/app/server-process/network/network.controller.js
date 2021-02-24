@@ -2,7 +2,8 @@ const express = require('express')
 const { commonError, handleStatus } = require('../../library/response')
 const authJwt = require('../../middlewares/authJwt')
 const { success } = require('../../utils/messageCode')
-const { addNetwork, getNetwork, updateNetwork, deleteNetwork, startNetwork, getNetworkById } = require('./network.service')
+const { addNetwork, getNetwork, updateNetwork, deleteNetwork, startNetwork, getNetworkByArg } = require('./network.service')
+const { defaultNetwork } = require('../../utils/constant')
 
 const api = express.Router()
 api.get('/network', authJwt, async(req, res) => {
@@ -14,10 +15,10 @@ api.get('/network', authJwt, async(req, res) => {
     return commonError(res, error)
   }
 })
-api.get('/network/:networkId/:networkArg', authJwt, async(req, res) => {
+api.get('/network/:networkArg', authJwt, async(req, res) => {
   try {
-    const { networkId, networkArg } = req.params
-    const result = await getNetworkById({ networkId, networkArg, ...req.body })
+    const { networkArg } = req.params
+    const result = await getNetworkByArg({ networkArg, ...req.body })
     return handleStatus(res, success(result))
   }
   catch(error) {
@@ -27,7 +28,8 @@ api.get('/network/:networkId/:networkArg', authJwt, async(req, res) => {
 
 api.post('/network', authJwt, async(req, res) => {
   try {
-    const result = await addNetwork(req.body)
+    const network_name = defaultNetwork
+    const result = await addNetwork({ network_name, ...req.body })
     return handleStatus(res, success(result))
   }
   catch(error) {
@@ -57,14 +59,12 @@ api.delete('/network/:networkArg', async(req, res) => {
   }
 })
 
-api.post('/start-network/:networkId', async(req, res) => {
+api.post('/start-network', async(req, res) => {
   try {
-    const { networkId } = req.params
-    const result = await startNetwork({ networkId })
+    const result = await startNetwork()
     return handleStatus(res, success(result))
   }
   catch(error) {
-    console.log("🚀 ~ file: network.controller.js ~ line 67 ~ api.post ~ error", error)
     return commonError(res, error)
   }
 })

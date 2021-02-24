@@ -2,12 +2,12 @@ const express = require('express')
 const { commonError, handleStatus } = require('../../library/response')
 const authJwt = require('../../middlewares/authJwt')
 const { success } = require('../../utils/messageCode')
-const { createChannel } = require('./channel.service')
+const { getChannel } = require('./channel.service')
 
 const api = express.Router()
-api.post('/channel', authJwt, async(req, res) => {
+api.get('/channel', authJwt, async(req, res) => {
   try {
-    const result = await createChannel(req.body)
+    const result = await getChannel(req.body)
     return handleStatus(res, success(result))
   }
   catch(error) {
