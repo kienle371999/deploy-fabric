@@ -70,7 +70,6 @@ const order = async() => {
       peer: order[0].name, 
       order: order[0].organization.name 
     }
-    console.log(vOrder)
     return vOrder
     }
   catch(error) {

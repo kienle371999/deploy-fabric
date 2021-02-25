@@ -8,8 +8,7 @@ const getChannel = async() => {
     const channels = await Channel
     .find({ network: network._id })
     .populate('organizations')
-    console.log('11111', channels)
-
+    
     filteredChannels = channels.map(channel => {
       return {
         _id: channel._id,

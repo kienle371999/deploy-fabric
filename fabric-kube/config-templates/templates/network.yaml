@@ -2,4 +2,12 @@ network:
   # used by init script to create genesis block and by peer-org-flow to parse consortiums
   genesisProfile: OrdererGenesis
   # used by init script to create genesis block 
+
+  # defines which organizations will join to which channels
   systemChannelID: testchainid
+  channels:
+{{- range $i, $channel := .Values.channels }}
+    - name: $channel.name
+      # all peers in these organizations will join the channel
+      orgs: $channel.orgs
+{{- end }}

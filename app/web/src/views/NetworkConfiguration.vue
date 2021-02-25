@@ -12,6 +12,7 @@
                 <input 
                   class="form-input w-full mt-2 rounded-md" 
                   :class="[orgErrors.organizations[index].org_name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+                  :disabled="configState"
                   type="text" 
                   v-model="organizations[index].org_name"/>
                 <div v-if="orgErrors.organizations[index].org_name.status">
@@ -23,6 +24,7 @@
                 <input 
                   class="form-input w-full mt-2 rounded-md" 
                   :class="[orgErrors.organizations[index].number_peers.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+                  :disabled="configState"
                   type="text" 
                   v-model="organizations[index].number_peers"/>
                 <div v-if="orgErrors.organizations[index].number_peers.status">
@@ -32,6 +34,7 @@
             </div>
             <div class="flex pl-8 pb-6 pt-6">
               <button class="px-4 py-2 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 focus:outline-none focus:bg-gray-700" 
+                :disabled="configState"
                 @click="addOrg()">{{ 'Add Organization' }}</button>
             </div>
           </div>
@@ -42,10 +45,11 @@
                 <label class="text-gray-700" for="org_name">{{ 'Channel' }}</label>
                 <input 
                   class="form-input w-full mt-2 rounded-md" 
-                  :class="[channelErrors.channels[index].name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+                  :class="[channelErrors[index].name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
                   type="text" 
+                  :disabled="configState"
                   v-model="channels[index].name"/>
-                <div v-if="channelErrors.channels[index].name.status">
+                <div v-if="channelErrors[index].name.status">
                   <div class="mt-2 text-red-700">{{ channelErrors.channels[index].name.message }}</div>
                 </div>
               </div>
@@ -54,6 +58,7 @@
                  <multi-select class="mt-2 border-red-600"
                     v-model="channels[index].orgs"
                     mode="tags"
+                    :disabled="configState"
                     :allow-empty="true"
                     placeholder="Select"
                     :options="orgOptions"/>
@@ -71,6 +76,7 @@
                 <input 
                   class="form-input w-full mt-2 rounded-md" 
                   :class="[orgErrors.order_name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+                  :disabled="configState"
                   type="text" 
                   v-model="order.order_name"/>
                 <div v-if="orgErrors.order_name.status">
@@ -79,13 +85,22 @@
               </div>
               <div>
                 <label class="text-gray-700" for="number_peers">{{ 'Peers' }}</label>
-                <input class="form-input w-full mt-2 rounded-md bg-gray-500" type="text" :disabled="true" v-model="order.number_peers"/>
+                <input 
+                class="form-input w-full mt-2 rounded-md bg-gray-500" 
+                type="text" 
+                :disabled="true" 
+                v-model="order.number_peers"/>
               </div>
             </div>
           </div>
         </form>
       <div class="flex justify-center mt-4 pb-6">
         <button class="px-4 py-2 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+          v-if="configState"
+          @click="reset()">{{ 'Reset Configuration' }}
+        </button>
+         <button class="px-4 py-2 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+          v-else
           @click="save()">{{ 'Save Configuration' }}
         </button>
       </div>
@@ -95,10 +110,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watchEffect, onMounted } from "vue"
+import { defineComponent, ref, watchEffect } from "vue"
 import { validateForm } from '../utils/commonLib'
 import { useNetworkData } from "../hooks/useNetworkData"
 import NetworkRequest from "../request/NetworkRequest"
+import localStorageSetting from "../utils/LocalStorageSetting"
 
 interface Organization {
   org_name: string,
@@ -115,17 +131,19 @@ interface Channel {
    orgs: string[]
 }
 
+interface OrgError  {
+  org_name: {
+    status: boolean
+    message: string
+  }
+  number_peers: {
+    status: boolean
+    message: string
+  }
+}
+
 interface NetworkError {
-  organizations: [{
-    org_name: {
-      status: boolean
-      message: string
-    }
-    number_peers: {
-      status: boolean
-      message: string
-    }
-  }]
+  organizations: OrgError[]
   order_name: {
     status: boolean
     message: string
@@ -133,8 +151,7 @@ interface NetworkError {
 }
 
 interface ChannelError {
-  channels: [{
-    name: {
+  name: {
       status: boolean
       message: string
     }
@@ -142,28 +159,54 @@ interface ChannelError {
       status: boolean
       message: string
     }
-  }]
+}
+
+const validateData = (data: Object) => {
+  const elements = Object.values(data)
+  return elements.every(element => !Array.isArray(element) || element.length === 0)
+}
+
+const crawlData = async() => {
+  try {
+      let organizations: Organization[]
+      let order: Order
+      let channels: Channel[]
+
+      const { vOrgs, vOrder, vChannels } = await useNetworkData('networkConfiguration')
+      if(validateData({ vOrgs, vOrder, vChannels })) {
+        organizations = vOrgs.map(org => {
+          return {
+            org_name: org.organization,
+            number_peers: org.number_peers
+          }
+        })
+        order = { order_name: vOrder.order, number_peers: '1' }
+        channels = vChannels.map(channel => {
+          return {
+            name: channel.name,
+            orgs: channel.orgs
+          }
+        })
+        return { organizations, order, channels }
+      }
+      return false
+    }
+    catch(error) {
+      return
+    }
 }
 
 export default defineComponent({
-  setup() {
+  async setup() {
     const startWatch = ref<Boolean>(false)
+    const configState = ref<Boolean>(false)
     const organizations = ref<Organization[]>([{  org_name: '', number_peers: '' }])
     const channels = ref<Channel[]>([{ name: '', orgs: [] }])
     const order = ref<Order>({ order_name: '', number_peers: '1' })
     const orgOptions = ref<Object[]>([])
+
     const orgErrors = ref<NetworkError>({
       organizations: [{ 
-        org_name: {
-          status: false,
-          message: ''
-        }, 
-        number_peers: {
-          status: false,
-          message: ''
-        } 
-      },
-      { 
         org_name: {
           status: false,
           message: ''
@@ -178,8 +221,8 @@ export default defineComponent({
         message: ''
       } 
     })
-    const channelErrors = ref<ChannelError>({
-      channels: [{
+    const channelErrors = ref<ChannelError[]>([
+      {
         name: {
           status: false,
           message: ''
@@ -188,35 +231,22 @@ export default defineComponent({
           status: false,
           message: ''
         }
-      }]
-    })
+      }
+    ])
 
-    async function crawlData() {
-      try {
-        console.log('33333')
-        const { vOrgs, vOrder, vChannels } = await useNetworkData('networkConfiguration')
-        organizations.value = vOrgs.map(org => {
-          return {
-            org_name: org.organization,
-            number_peers: org.number_peers
-          }
-        })
-        order.value = { order_name: vOrder.order, number_peers: '1' }
-        channels.value = vChannels.map(channel => {
-          return {
-            name: channel.name,
-            orgs: channel.orgs
-          }
-        })
-      }
-      catch(error) {
-        console.log("🚀 ~ file: NetworkConfiguration.vue ~ line 205 ~ crawlData ~ error", error)
-      }
+    const crawledData = await crawlData()
+    if(crawledData) {
+      organizations.value = crawledData.organizations
+      order.value = crawledData.order
+      channels.value = crawledData.channels
     }
-
-    onMounted(async() => {
-      await crawlData()
-    })
+     
+    if(localStorageSetting._getError()) {
+      const configError = localStorageSetting._getError()
+      orgErrors.value = configError.orgErrors
+      channelErrors.value = configError.channelErrors
+      configState.value = true
+    }
 
     function handleForm() {
       startWatch.value = true
@@ -267,10 +297,26 @@ export default defineComponent({
     }
 
     function addChannel() {
-      channels.value.push({ name: '', orgs: []})
+      channels.value.push({ name: '', orgs: [] })
       startWatch.value = false
     }
 
+    function reset() {
+      configState.value = false
+      organizations.value = [{ 
+        org_name: '',
+        number_peers: ''
+      }]
+      order.value = {
+        order_name: '',
+        number_peers: '1'
+      }
+      channels.value = [{
+        name: '',
+        orgs: []
+      }]
+      orgOptions.value = []
+    }
 
     async function save() {
       handleForm()
@@ -278,20 +324,9 @@ export default defineComponent({
         try {
           const res = await NetworkRequest.addNetwork({ organizations: organizations.value, order: order.value, channels: channels.value })
           if(res) {
-            organizations.value = [{ 
-              org_name: '',
-              number_peers: ''
-            }]
-            order.value = {
-              order_name: '',
-              number_peers: '1'
-            }
-            channels.value = [{
-              name: '',
-              orgs: []
-            }]
-            orgOptions.value = []
+            localStorageSetting._setError(orgErrors.value, channels.value)
             startWatch.value = false
+            configState.value = true
             this.$toast.success('Successfully create network')
           }
         }
@@ -308,9 +343,11 @@ export default defineComponent({
       orgOptions,
       addOrg, 
       addChannel,
-      save, 
+      save,
+      reset, 
       orgErrors,
-      channelErrors 
+      channelErrors,
+      configState 
     }
   }
 })

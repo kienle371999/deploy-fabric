@@ -1,4 +1,10 @@
-var x = { a: 5 }
-var channel = [13, 15, 14]
+function a() {
+    for (var i = 0; i < 5; i++) {
+        console.log('--------', i)
+        if(i === 1) {
+            return false
+        }
+    }
+}
 
-console.log({ x, channel })
+a()

@@ -129,14 +129,14 @@
                 </tr>
               </thead>
               <tbody class="bg-white">
-                <tr v-for="(element, index) in orderTableData" :key="index">
+                <tr>
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
                     <div class="flex items-center">
-                      <span>{{ element.peer }}</span>
+                      <span>{{ orderTableData.peer }}</span>
                     </div>
                   </td>
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span>{{ element.order }}</span>
+                    <span>{{ orderTableData.order }}</span>
                   </td>
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
                     <span class="inline-block mr-3" @click="editValue(element, 'order')">
@@ -160,12 +160,30 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue"
+import { computed, defineComponent, ref, getCurrentInstance } from "vue"
 import { NetworkRequest } from "../request"
 import { EditableModal, DeleteModal } from "../modals"
 import { IOrganization, IPeer, IOrder } from "../hooks/useInterface"
 import { useNetworkData } from "../hooks/useNetworkData"
 import { useRoute } from "vue-router"
+
+const validateData = (data: Object) => {
+  const elements = Object.values(data)
+  return elements.every(element => !Array.isArray(element) || element.length === 0)
+}
+
+const crawlData = async() => {
+  try {
+        const { vOrgs, vOrder, vPeers } = await useNetworkData('networkSetup')
+        if(validateData({ vOrgs, vOrder, vPeers })) {
+          return { vOrgs, vOrder, vPeers }
+        } 
+        return false
+      }
+      catch(error) {
+        return
+      }
+}
 
 export default defineComponent({
   components: {
@@ -182,25 +200,22 @@ export default defineComponent({
     const passedData = ref<any>(null)
     const passedType = ref<String>('')
     const organizationTableData = ref<IOrganization[]>([])
-    const orderTableData = ref<IOrder[]>([])
+    const orderTableData = ref<IOrder>({
+      _id: null,
+      network_id: null,
+      peer: null,
+      order: null
+    })
     const peerTableData = ref<IPeer[]>([])
 
-    async function crawlData() {
-      try {
-        const { organizations, orders, peers } = await useNetworkData('networkSetup')
-        organizationTableData.value = organizations
-        orderTableData.value = orders
-        peerTableData.value = peers
-      }
-      catch(error) {
-        this.$toast.error(error.message)
-      }
+    const crawledData = await crawlData()
+    if(crawledData) {
+      organizationTableData.value = crawledData.vOrgs
+      orderTableData.value = crawledData.vOrder
+      peerTableData.value = crawledData.vPeers
     }
 
-    onMounted(async() => {
-      await crawlData()
-    })
-    computed(async(remove) => {
+    computed(async() => {
       await crawlData()
     })
 

@@ -37,3 +37,6 @@ orgs:
           password: adminpw789
           port: 30033
     UserCount: 1
+channels:
+  - name: mychannel
+    orgs: ['Org1', 'Org2']

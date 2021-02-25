@@ -36,3 +36,6 @@ helm install $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOL
 ./collect_host_aliases.sh $PROJECT_FOLDER/
 echo "Updating host aliases..."
 helm upgrade $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml --values=$PROJECT_FOLDER/hlf-kube-value.yaml --wait 
+
+echo "Creating channel..."
+helm template channel-flow/ -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml | argo submit - --log --serviceaccount workflow

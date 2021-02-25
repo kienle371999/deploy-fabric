@@ -204,8 +204,11 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.ca_port)) throw new Error('CA Port must be non-empty')
 
     const vCAPort = await Organization.findOne({ ca_port: networkData.ca_port })
-    const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
-    if(vCAPort.id !== networkData._id || vCouchDBPort) throw new Error('Duplicate CA Port')
+    if(vCAPort) {
+      const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
+      if(vCouchDBPort || vCAPort.id !== networkData._id) throw new Error('Duplicate CA Port')
+    }
+
     try {
       const vOrg = await Organization.findById(networkData._id)
       if(!vOrg) throw new Error('Organization is not found')
@@ -217,6 +220,7 @@ const updateNetwork = async(args) => {
       return vOrg.save()
     }
     catch(error) {
+      console.log("🚀 ~ file: network.service.js ~ line 220 ~ updateNetwork ~ error", error)
       throw new Error(error.message)
     }
   }
@@ -228,9 +232,12 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
     if(!_vArgs(networkData.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
 
-    const vCAPort = await Organization.findOne({ ca_port: networkData.couchdb_port })
+    
     const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.couchdb_port })
-    if(vCAPort || vCouchDBPort.id !== networkData._id) throw new Error('Duplicate CouchDB Port')
+    if(vCouchDBPort) {
+      const vCAPort = await Organization.findOne({ ca_port: networkData.couchdb_port })
+      if(vCAPort || vCouchDBPort.id !== networkData._id) throw new Error('Duplicate CouchDB Port')
+    }
     try {
       const vPeer = await Peer.findById(networkData._id)
   
