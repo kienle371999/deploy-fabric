@@ -57,12 +57,6 @@
                         <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
                       </svg>
                     </span>
-                    <span class="inline-block" @click="deleteValue(element, 'organization')">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d3748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -106,12 +100,6 @@
                         <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
                       </svg>
                     </span>
-                    <span class="inline-block" @click="deleteValue(element, 'peer')">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d3748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -125,26 +113,17 @@
                 <tr>
                   <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Peer' }}</th>
                   <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Organization' }}</th>
-                  <th class="px-6 py-3 w-1/4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ 'Action' }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white">
-                <tr>
+                <tr v-for="(element, index) in orderTableData" :key="index">
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
                     <div class="flex items-center">
-                      <span>{{ orderTableData.peer }}</span>
+                      <span>{{ element.peer }}</span>
                     </div>
                   </td>
                   <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span>{{ orderTableData.order }}</span>
-                  </td>
-                  <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span class="inline-block mr-3" @click="editValue(element, 'order')">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d3748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
-                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
-                      </svg>
-                    </span>
+                    <span>{{ element.order }}</span>
                   </td>
                 </tr>
               </tbody>
@@ -155,28 +134,29 @@
     </div>
   </div>
   <editable-modal v-if="edit" :data="passedData" :type="passedType" @close="close"/>
-  <delete-modal v-if="remove" :data="passedData" :type="passedType" @close="close"/>
   </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref, getCurrentInstance } from "vue"
 import { NetworkRequest } from "../request"
-import { EditableModal, DeleteModal } from "../modals"
+import { EditableModal } from "../modals"
 import { IOrganization, IPeer, IOrder } from "../hooks/useInterface"
 import { useNetworkData } from "../hooks/useNetworkData"
 import { useRoute } from "vue-router"
 
 const validateData = (data: Object) => {
   const elements = Object.values(data)
-  return elements.every(element => !Array.isArray(element) || element.length === 0)
+  console.log("validateData -> elements", elements)
+  return elements.every(element => Array.isArray(element) && element.length !== 0)
 }
 
 const crawlData = async() => {
   try {
-        const { vOrgs, vOrder, vPeers } = await useNetworkData('networkSetup')
-        if(validateData({ vOrgs, vOrder, vPeers })) {
-          return { vOrgs, vOrder, vPeers }
+        const { vOrgs, vOrders, vPeers } = await useNetworkData('networkSetup')
+        console.log('ooo', validateData({ vOrgs, vOrders, vPeers }))
+        if(validateData({ vOrgs, vOrders, vPeers })) {
+          return { vOrgs, vOrders, vPeers }
         } 
         return false
       }
@@ -187,8 +167,7 @@ const crawlData = async() => {
 
 export default defineComponent({
   components: {
-    EditableModal,
-    DeleteModal
+    EditableModal
   },
   async setup() {
     const route = useRoute()
@@ -200,18 +179,13 @@ export default defineComponent({
     const passedData = ref<any>(null)
     const passedType = ref<String>('')
     const organizationTableData = ref<IOrganization[]>([])
-    const orderTableData = ref<IOrder>({
-      _id: null,
-      network_id: null,
-      peer: null,
-      order: null
-    })
+    const orderTableData = ref<IOrder[]>([])
     const peerTableData = ref<IPeer[]>([])
 
     const crawledData = await crawlData()
     if(crawledData) {
       organizationTableData.value = crawledData.vOrgs
-      orderTableData.value = crawledData.vOrder
+      orderTableData.value = crawledData.vOrders
       peerTableData.value = crawledData.vPeers
     }
 
@@ -226,12 +200,6 @@ export default defineComponent({
       passedData.value = data
       passedType.value = type
       edit.value = true 
-    }
-
-    function deleteValue(data: string, type: string) {
-      passedData.value = data
-      passedType.value = type
-      remove.value = true 
     }
 
     async function start() {
@@ -279,7 +247,6 @@ export default defineComponent({
       edit,
       remove,
       editValue,
-      deleteValue,
       passedData,
       passedType,
       start,

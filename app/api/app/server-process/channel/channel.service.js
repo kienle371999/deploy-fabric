@@ -4,7 +4,7 @@ const { defaultNetwork } = require('../../utils/constant')
 const getChannel = async() => {
   try {
     const network = await Network.findOne({ name: defaultNetwork })
-    if(!network) throw new Error('Network must be created')
+    if(!network) return []
     const channels = await Channel
     .find({ network: network._id })
     .populate('organizations')

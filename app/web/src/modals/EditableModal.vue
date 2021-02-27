@@ -24,15 +24,11 @@
         <div>
           <div class="px-4 py-3">
             <label class="text-gray-700" for="org_name">{{ 'Organization' }}</label>
-            {{orgErrors.organization.status}}
             <input 
-              class="form-input w-full mt-2 rounded-md" 
-              :class="[orgErrors.organization.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+              class="form-input w-full mt-2 rounded-md bg-gray-500" 
               type="text" 
+              :disabled="true"
               v-model="props.data.organization"/>
-            <div v-if="orgErrors.organization.status">
-              <div class="mt-2 text-red-700">{{ orgErrors.organization.message }}</div>
-            </div>
           </div>
           <div class="px-4 py-3">
             <label class="text-gray-700" for="number_peers">{{ 'CA Username' }}</label>
@@ -89,24 +85,18 @@
           <div class="px-4 py-3">
             <label class="text-gray-700" for="org_name">{{ 'Peer' }}</label>
             <input 
-              class="form-input w-full mt-2 rounded-md" 
-              :class="[peerErrors.peer.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+              class="form-input w-full mt-2 rounded-md bg-gray-500" 
               type="text" 
+              :disabled="true"
               v-model="props.data.peer"/>
-            <div v-if="peerErrors.peer.status">
-              <div class="mt-2 text-red-700">{{ peerErrors.peer.message }}</div>
-            </div>
           </div>
           <div class="px-4 py-3">
             <label class="text-gray-700" for="org_name">{{ 'Organization' }}</label>
             <input 
-              class="form-input w-full mt-2 rounded-md" 
-              :class="[peerErrors.organization.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
+              class="form-input w-full mt-2 rounded-md bg-gray-500" 
               type="text" 
+              :disabled="true"
               v-model="props.data.organization"/>
-            <div v-if="peerErrors.organization.status">
-              <div class="mt-2 text-red-700">{{ peerErrors.organization.message }}</div>
-            </div>
           </div>
           <div class="px-4 py-3">
             <label class="text-gray-700" for="number_peers">{{ 'CouchDB Username' }}</label>
@@ -199,10 +189,6 @@ import { validateForm } from '../utils/commonLib'
 import { NetworkRequest } from '../request'
 
 interface OrgError {
-  organization: {
-    status: boolean
-    message: string
-  }
   ca_username: {
     status: boolean
     message: string
@@ -218,14 +204,6 @@ interface OrgError {
 }
 
 interface PeerError {
-  peer: {
-    status: boolean
-    message: string
-  }
-  organization: {
-    status: boolean
-    message: string
-  }
   couchdb_username: {
     status: boolean
     message: string
@@ -267,10 +245,6 @@ export default defineComponent({
   setup (props, context) {
     const startWatch = ref<Boolean>(false)
     const orgErrors = ref<OrgError>({ 
-      organization: {
-        status: false,
-        message: ''
-      },
       ca_username: {
         status: false,
         message: ''
@@ -286,14 +260,6 @@ export default defineComponent({
     })
   
     const peerErrors = ref<PeerError>({ 
-      peer: {
-        status: false,
-        message: ''
-      },
-      organization: {
-        status: false,
-        message: ''
-      },
       couchdb_username: {
         status: false,
         message: ''
@@ -322,15 +288,12 @@ export default defineComponent({
     function handleForm() {
       if(props.type === 'organization') {
         startWatch.value = true
-        orgErrors.value.organization = validateForm('organization', props.data.organization)
         orgErrors.value.ca_username = validateForm('CA UserName', props.data.ca_username)
         orgErrors.value.ca_password = validateForm('CA Password', props.data.ca_password)
         orgErrors.value.ca_port = validateForm('CA Port', props.data.ca_port)
       }
       if(props.type === 'peer') {
         startWatch.value = true
-        peerErrors.value.peer = validateForm('peer', props.data.peer)
-        peerErrors.value.organization = validateForm('organization', props.data.organization)
         peerErrors.value.couchdb_username = validateForm('CouchDB UserName', props.data.couchdb_username)
         peerErrors.value.couchdb_password = validateForm('CouchDB Password', props.data.couchdb_password)
         peerErrors.value.couchdb_port = validateForm('CouchDB Port', props.data.couchdb_port)
@@ -346,15 +309,12 @@ export default defineComponent({
       let state: boolean = true
 
       if(props.type === 'organization') {
-        if(orgErrors.value.organization.status) state = false
         if(orgErrors.value.ca_username.status) state = false
         if(orgErrors.value.ca_password.status) state = false
         if(orgErrors.value.ca_port.status) state = false
       }
       if(props.type === 'peer') {
         startWatch.value = true
-        if(peerErrors.value.peer.status) state = false
-        if(peerErrors.value.organization.status) state = false
         if(peerErrors.value.couchdb_username.status) state = false
         if(peerErrors.value.couchdb_password.status) state = false
         if(peerErrors.value.couchdb_port.status) state = false

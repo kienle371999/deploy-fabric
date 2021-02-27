@@ -58,7 +58,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/network-setup",
-    name: "NetworkElement",
+    name: "NetworkSetup",
     component: NetworkSetup,
   },
   {

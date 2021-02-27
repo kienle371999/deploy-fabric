@@ -163,7 +163,7 @@ interface ChannelError {
 
 const validateData = (data: Object) => {
   const elements = Object.values(data)
-  return elements.every(element => !Array.isArray(element) || element.length === 0)
+  return elements.every(element => Array.isArray(element) && element.length !== 0)
 }
 
 const crawlData = async() => {
@@ -172,15 +172,15 @@ const crawlData = async() => {
       let order: Order
       let channels: Channel[]
 
-      const { vOrgs, vOrder, vChannels } = await useNetworkData('networkConfiguration')
-      if(validateData({ vOrgs, vOrder, vChannels })) {
+      const { vOrgs, vOrders, vChannels } = await useNetworkData('networkConfiguration')
+      if(validateData({ vOrgs, vOrders, vChannels })) {
         organizations = vOrgs.map(org => {
           return {
             org_name: org.organization,
             number_peers: org.number_peers
           }
         })
-        order = { order_name: vOrder.order, number_peers: '1' }
+        order = { order_name: vOrders[0].order, number_peers: '1' }
         channels = vChannels.map(channel => {
           return {
             name: channel.name,
@@ -240,6 +240,9 @@ export default defineComponent({
       order.value = crawledData.order
       channels.value = crawledData.channels
     }
+    else {
+      localStorageSetting._clearError()
+    }
      
     if(localStorageSetting._getError()) {
       const configError = localStorageSetting._getError()
@@ -298,6 +301,16 @@ export default defineComponent({
 
     function addChannel() {
       channels.value.push({ name: '', orgs: [] })
+      channelErrors.value.push({
+        name: {
+          status: false,
+          message: ''
+        },
+        orgs: {
+          status: false,
+          message: ''
+        }
+      })
       startWatch.value = false
     }
 

@@ -61,15 +61,17 @@ const channels = async() => {
   }
 }
 
-const order = async() => {
+const orders = async() => {
   try {
-    const order = await RequestNetwork.getNetworkByArg('order')
-    const vOrder: IOrder = {
-      _id: order[0]._id, 
-      network_id: order[0].network, 
-      peer: order[0].name, 
-      order: order[0].organization.name 
-    }
+    const orders = await RequestNetwork.getNetworkByArg('order')
+    const vOrder: IOrder[] = orders.map(order => {
+      return {
+        _id: order._id, 
+        network_id: order.network, 
+        peer: order.name, 
+        order: order.organization.name 
+      }
+    })
     return vOrder
     }
   catch(error) {
@@ -82,14 +84,14 @@ const useNetworkData = async(type: string) => {
     return { 
       vOrgs: await organizations(), 
       vPeers: await peers(),
-      vOrder: await order(),
+      vOrders: await orders(),
     }
   }
   if(type === 'networkConfiguration') {
     return { 
       vOrgs: await organizations(), 
       vPeers: await peers(),
-      vOrder: await order(),
+      vOrders: await orders(),
       vChannels: await channels()
     }
   }
