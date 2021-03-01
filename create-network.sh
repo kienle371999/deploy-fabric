@@ -4,28 +4,26 @@ PROJECT=${1:-test}
 CONFIG_FILE=${2:-config-templates/values.yaml}
 
 mydir=$(dirname "$0")
+cd $mydir/
+
+# Install argo
+if [ "$(kubectl get namespaces | grep 'argo')" == "" ]; then    
+    ./install-argo.sh
+fi
 
 echo "Creating configuration files for project $PROJECT"
-
-cd $mydir/
 
 # Remove unnecessity 
 ./clean.sh $PROJECT
 
-# Create new namspace
-# kubectl create namespace "$PROJECT-namespace"
-
 PROJECT_FOLDER=$PWD/networks/$PROJECT
-
 mkdir -p $PROJECT_FOLDER
-
 cd fabric-kube
 
+helm template config-templates/ -s templates/configtx.yaml -f $CONFIG_FILE | sed -n '1!p' > $PROJECT_FOLDER/configtx.yaml
 helm template config-templates/ -s templates/crypto-config.yaml -f $CONFIG_FILE | sed -n '1!p' > $PROJECT_FOLDER/crypto-config.yaml
 helm template config-templates/ -s templates/hlf-kube-value.yaml -f $CONFIG_FILE | sed -n '1!p'  > $PROJECT_FOLDER/hlf-kube-value.yaml
-helm template config-templates/ -s templates/network.yaml | sed -n '1!p'  > $PROJECT_FOLDER/network.yaml
-
-# ./init.sh $PROJECT_FOLDER
+helm template config-templates/ -s templates/network.yaml -f $CONFIG_FILE | sed -n '1!p'  > $PROJECT_FOLDER/network.yaml
 
 ./init.sh $PROJECT_FOLDER
 

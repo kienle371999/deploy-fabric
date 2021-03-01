@@ -26,8 +26,8 @@ class NetworkRequest extends BaseRequest {
         const url = this.getURL(`/api/network/${params.type}`)
         return this.delete(url, params.data)
     }
-    async startNetwork(networkId: string) {
-        const url = this.getURL(`/api/start-network/${networkId}`)
+    async startNetwork() {
+        const url = this.getURL(`/api/start-network`)
         return this.post(url)
     }
 }

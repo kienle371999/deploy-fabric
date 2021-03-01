@@ -1,10 +1,11 @@
 function a() {
-    for (var i = 0; i < 5; i++) {
-        console.log('--------', i)
-        if(i === 1) {
-            return false
-        }
-    }
+    let x = []
+    const arr = [1, 4, 6]
+    arr.forEach(e => {
+        x.push(e)
+    })
+
+    console.log('jjjj', x)
 }
 
 a()

@@ -12,7 +12,8 @@ exports.role = {
 exports.model = {
     organization: 'organization',
     order: 'order',
-    peer: 'peer'
+    peer: 'peer',
+    network: 'network'
 }
 
 exports.domain = 'example.com'

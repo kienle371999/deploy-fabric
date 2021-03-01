@@ -2,5 +2,7 @@
 
 PROJECT=${1:-test}
 
-helm uninstall $PROJECT
-argo delete --all
+if [ "$(helm  list -aq)" != "" ]; then 
+    helm uninstall $PROJECT
+    argo delete --all
+fi

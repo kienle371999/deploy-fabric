@@ -38,5 +38,7 @@ orgs:
           port: 30033
     UserCount: 1
 channels:
-  - name: mychannel
-    orgs: ['Org1', 'Org2']
+  - Name: fabcar
+    Orgs: 
+      - Org1
+      - Org2

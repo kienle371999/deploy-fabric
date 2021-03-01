@@ -20,8 +20,8 @@
             @click="changeComponent('NetworkSetupOrder')">
             <p class="text-center">{{ 'Order' }}</p>
           </span>
-          <button class="col-span-2 ml-auto mr-0 mt-3 w-1/3 bg-green-500 rounded-md text-white focus:outline-none font-medium tracking-wide hover:bg-green-500"
-            @click="start()">{{ 'Start Network' }}
+          <button :class="`col-span-2 ml-auto mr-0 mt-3 w-1/3 bg-${buttonState.color}-500 rounded-md text-white focus:outline-none font-medium tracking-wide hover:bg-green-500`"
+            @click="start()">{{ buttonState.message }}
           </button>
         </div>
         <div v-if="componentName === 'NetworkSetupOrg'" class="py-4 overflow-x-auto">
@@ -141,22 +141,20 @@
 import { computed, defineComponent, ref, getCurrentInstance } from "vue"
 import { NetworkRequest } from "../request"
 import { EditableModal } from "../modals"
-import { IOrganization, IPeer, IOrder } from "../hooks/useInterface"
+import { IOrganization, IPeer, IOrder, INetworkButton } from "../hooks/useInterface"
 import { useNetworkData } from "../hooks/useNetworkData"
 import { useRoute } from "vue-router"
 
 const validateData = (data: Object) => {
   const elements = Object.values(data)
-  console.log("validateData -> elements", elements)
   return elements.every(element => Array.isArray(element) && element.length !== 0)
 }
 
 const crawlData = async() => {
   try {
-        const { vOrgs, vOrders, vPeers } = await useNetworkData('networkSetup')
-        console.log('ooo', validateData({ vOrgs, vOrders, vPeers }))
-        if(validateData({ vOrgs, vOrders, vPeers })) {
-          return { vOrgs, vOrders, vPeers }
+        const { vOrgs, vOrders, vPeers, vNetwork } = await useNetworkData('networkSetup')
+        if(vNetwork && validateData({ vOrgs, vOrders, vPeers })) {
+          return { vOrgs, vOrders, vPeers, vNetwork }
         } 
         return false
       }
@@ -181,12 +179,19 @@ export default defineComponent({
     const organizationTableData = ref<IOrganization[]>([])
     const orderTableData = ref<IOrder[]>([])
     const peerTableData = ref<IPeer[]>([])
+    const buttonState = ref<INetworkButton>({
+      color: 'green',
+      message: 'Start Network'
+    })
 
     const crawledData = await crawlData()
     if(crawledData) {
       organizationTableData.value = crawledData.vOrgs
       orderTableData.value = crawledData.vOrders
       peerTableData.value = crawledData.vPeers
+      if(crawledData.vNetwork.status === 'Running') {
+        buttonState.value = { color: 'red', message: 'Stop Network' }
+      }
     }
 
     computed(async() => {
@@ -215,18 +220,22 @@ export default defineComponent({
         if(!peer.couchdb_port) checkComplete = false 
       })
 
-      if(!checkComplete) this.$toast.error('Please fill out this form')
+      if(!checkComplete) {
+        this.$toast.error('Please fill out this form')
+        return
+      }
       try {
-        const networkRes = await NetworkRequest.startNetwork(route.params.networkId.toString())
-        // let loader = this.$loading()
-        // loader.show({ loader: 'dots' })
-
-        // setTimeout(() => {
-        //   loader.hide()
-        // }, 2000)   
+        const loader = this.$loading()
+        loader.show({ loader: 'dots' })
+        const networkRes = await NetworkRequest.startNetwork()
+        if(networkRes) {
+          loader.hide()
+          buttonState.value = { color: 'red', message: 'Stop Network' }
+        }
       }
       catch(error) {
         this.$toast.error(error.message)
+        return
       }
     }
 
@@ -249,6 +258,7 @@ export default defineComponent({
       editValue,
       passedData,
       passedType,
+      buttonState,
       start,
       close
     }

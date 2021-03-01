@@ -23,8 +23,8 @@ export const validateForm = (inputType: string, data: string) => {
     if(data !== String(Number(data))) {
       return { status: true, message: `${capitalize(inputType)} must be number` }
     }
-    if(parseInt(data) < 30000 || parseInt(data) > 32767) {
-      return { status: true, message: `${capitalize(inputType)} must be between 30000 and 32627` }
+    if(parseInt(data) < 30001 || parseInt(data) > 32767) {
+      return { status: true, message: `${capitalize(inputType)} must be between 30001 and 32627` }
     } 
     else {
       return { status: false, message: '' }

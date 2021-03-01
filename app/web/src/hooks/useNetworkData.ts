@@ -2,9 +2,16 @@ import { ChannelRequest } from '../request'
 import RequestNetwork from '../request/NetworkRequest'
 import { IOrder, IOrganization, IPeer, IChannel } from './useInterface'
 
+
+const validateData = (data: Object) => {
+  const elements = Object.values(data)
+  return elements.every(element => Array.isArray(element) && element.length !== 0)
+}
+
 const organizations = async() => {
   try {
     const orgs = await RequestNetwork.getNetworkByArg('organization')
+    if(!Array.isArray(orgs) || orgs.length === 0) return []
     const vOrgs: IOrganization[] = orgs.map(org => {
       return {
         _id: org._id, 
@@ -26,6 +33,7 @@ const organizations = async() => {
 const peers = async() => {
   try {
     const peers = await RequestNetwork.getNetworkByArg('peer')
+    if(!Array.isArray(peers) || peers.length === 0) return []
     const vPeers: IPeer[] = peers.map(peer => {
       return {
         _id: peer._id, 
@@ -48,6 +56,7 @@ const peers = async() => {
 const channels = async() => {
   try {
     const channels = await ChannelRequest.getChannel()
+    if(!Array.isArray(channels) || channels.length === 0) return []
     const vChannels: IChannel[] = channels.map(channel => {
       return {
         name: channel.name,
@@ -56,6 +65,17 @@ const channels = async() => {
     })
     return vChannels
     }
+  catch(error) {
+    throw new Error(error.message)
+  }
+}
+
+const network = async() => {
+  try {
+    const network = await RequestNetwork.getNetworkByArg('network')
+    if(!network) return null
+    return network
+  }
   catch(error) {
     throw new Error(error.message)
   }
@@ -85,6 +105,7 @@ const useNetworkData = async(type: string) => {
       vOrgs: await organizations(), 
       vPeers: await peers(),
       vOrders: await orders(),
+      vNetwork: await network()
     }
   }
   if(type === 'networkConfiguration') {

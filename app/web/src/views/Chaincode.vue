@@ -2,7 +2,7 @@
   <div class="mt-8">
     <div class="mt-4">
       <div class="p-6 bg-white rounded-md shadow-md">
-        <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Network Configuration' }}</h3>
+        <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Chaincode' }}</h3>
         <form @submit.prevent="register">
           <div class="m-8 border-2 border-gray-500">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-3/5 pt-8 pl-8"

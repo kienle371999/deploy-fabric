@@ -8,7 +8,7 @@ const Channel = require('../../models/channel.model')
 const yaml = require('js-yaml')
 const _ = require('lodash')
 const fs = require('fs')
-const { spawnSync } = require("child_process")
+const { spawnSync, spawn } = require("child_process")
 const Promise = require('bluebird')
  
 const _vArgs = (arg) => {
@@ -63,8 +63,7 @@ const addNetwork = async(args) => {
         await Peer.create({ 
           organization: newOrg._id,
           network: newNetwork._id,
-          name: `peer${i}`,
-          status: status.new
+          name: `peer${i}`
         })
       }
     })
@@ -138,7 +137,7 @@ const getNetwork = async(args) => {
 }
 
 const getNetworkByArg = async(args) => {
-  const validNetworkArg = [model.organization, model.peer, model.order]
+  const validNetworkArg = [model.organization, model.peer, model.order, model.network]
 
   const validateArgs = async(args) => {
     const { networkArg, user } = args
@@ -183,6 +182,9 @@ const getNetworkByArg = async(args) => {
       })
       return peerOrders.filter(peerOrder => peerOrder.organization)
     }
+    else if(networkArg === validNetworkArg[3]) {
+      return network
+    }
   }
   catch(error) {
     throw new Error(error.message)
@@ -205,9 +207,10 @@ const updateNetwork = async(args) => {
 
     const vCAPort = await Organization.findOne({ ca_port: networkData.ca_port })
     if(vCAPort) {
-      const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
-      if(vCouchDBPort || vCAPort.id !== networkData._id) throw new Error('Duplicate CA Port')
+      if(vCAPort.id !== networkData._id) throw new Error('Duplicate CA Port')
     }
+    const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
+    if(vCouchDBPort) throw new Error('Duplicate CA Port')
 
     try {
       const vOrg = await Organization.findById(networkData._id)
@@ -235,9 +238,11 @@ const updateNetwork = async(args) => {
     
     const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.couchdb_port })
     if(vCouchDBPort) {
-      const vCAPort = await Organization.findOne({ ca_port: networkData.couchdb_port })
-      if(vCAPort || vCouchDBPort.id !== networkData._id) throw new Error('Duplicate CouchDB Port')
+      if(vCouchDBPort.id !== networkData._id) throw new Error('Duplicate CouchDB Port')
     }
+    const vCAPort = await Organization.findOne({ ca_port: networkData.couchdb_port })
+    if(vCAPort) throw new Error('Duplicate CouchDB Port')
+
     try {
       const vPeer = await Peer.findById(networkData._id)
   
@@ -323,16 +328,17 @@ const deleteNetwork = async(args) => {
   }
 }
 
-const startNetwork = async(args) => {
+const startNetwork = async() => {
   const network = await Network.findOne({ name: defaultNetwork })
   if(!network) throw new Error('Network is not found')
+  if(network.status === status.running) return network
 
   try {
-    const templateConfig = { orgs: [] }
+    const templateConfig = { orgs: [], channels: [] }
     const organizations = await Organization.aggregate([
       { 
         $match: {
-          network: new ObjectId(networkId),
+          network: network._id,
           role: role.organization
         } 
       },
@@ -347,10 +353,6 @@ const startNetwork = async(args) => {
     ])
 
     _.each(organizations, (org, index) => {
-      if(!_vArgs(org.ca_username)) throw new Error('CA Username must be non-empty')
-      if(!_vArgs(org.ca_password)) throw new Error('CA Password must be non-empty')
-      if(!_vArgs(org.ca_port)) throw new Error('CA Port must be non-empty')
-
       templateConfig.orgs.push({ 
         Name: org.name, 
         Domain: org.name.concat(`.${domain}`), 
@@ -365,10 +367,6 @@ const startNetwork = async(args) => {
       })
 
       _.each(org.peers, (peer) => {
-        if(!_vArgs(peer.couchdb_username)) throw new Error('Couch DB Username must be non-empty')
-        if(!_vArgs(peer.couchdb_password)) throw new Error('CouchDB Password must be non-empty')
-        if(!_vArgs(peer.couchdb_port)) throw new Error('CouchDB Port must be non-empty')
-    
         templateConfig.orgs[index].Peers.push({
           Domain: peer.name.concat(`.${org.name}.${domain}`),
           CouchDB: {
@@ -380,20 +378,28 @@ const startNetwork = async(args) => {
       })
     })
 
+    const channels = await Channel.find({ network: network._id }).populate('organizations')
+    if(!Array.isArray(channels) || channels.length === 0) throw new Error('Channels must exsit')
+    _.each(channels, (channel) => {
+      templateConfig.channels.push({
+        Name: channel.name,
+        Orgs: channel.organizations.map(org => org.name)
+      })
+    })
+
     const yamlStr = yaml.safeDump(templateConfig)
     fs.writeFileSync('yaml-generation/network-config.yaml', yamlStr, 'utf8')
     const configPath = process.env.PWD.concat('/yaml-generation/network-config.yaml')
+    console.log("startNetwork -> configPath", configPath)
 
     const res = spawnSync('bash', ['../../../create-network.sh', network.name.toLowerCase(), configPath])
     if(res.status !== 0) {
       console.log('Blockchain Error', res.stderr.toString())
-      throw new Error('Fail to create network')
     }
     else {
       console.log('System-data', res.stdout.toString())
       console.log('Blockchain-data', res.stderr.toString())
-      const updatedNetwork = await Network.updateOne({ status: status.running })
-      return updatedNetwork
+      return await Network.findByIdAndUpdate(network._id, { status: status.running })
     }
   }
   catch(error) {

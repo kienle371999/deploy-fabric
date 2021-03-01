@@ -32,12 +32,7 @@ const PeerSchema = new Schema({
   couchdb_port: {
     type: String,
     maxlength: 255
-  },
-  status: {
-    type: String,
-    maxlength: 255,
-    required: true
-  },
+  }
 }, { timestamps: true })
 
 const Peer = mongoose.model('Peer', PeerSchema)

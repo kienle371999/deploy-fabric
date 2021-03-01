@@ -117,6 +117,7 @@ export default defineComponent({
         }
         catch(error) {
           this.$toast.error(error.message)
+          return
         }
       }
     }

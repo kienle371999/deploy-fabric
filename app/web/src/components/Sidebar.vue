@@ -108,7 +108,7 @@
             />
           </svg>
 
-          <span class="mx-4">{{ 'Channel' }}</span>
+          <span class="mx-4">{{ 'Chaincode' }}</span>
         </router-link>
         <router-link
           class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4"

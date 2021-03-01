@@ -35,3 +35,8 @@ export interface IChannel {
    name: string
    orgs: string[]
 }
+
+export interface INetworkButton {
+   color: string
+   message: string
+}

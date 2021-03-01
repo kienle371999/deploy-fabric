@@ -38,6 +38,7 @@ class BaseRequest {
       return res.data
     }
     catch(error) {
+      console.log("_doRequest -> error", error)
       if (error.response.status === 401) {
         localStorageSetting._clearToken()
       }

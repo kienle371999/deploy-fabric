@@ -288,14 +288,16 @@ Profiles:
 {{- range $i, $org := .Values.orgs }}
                     - *{{ $org.Name }}
 {{- end }}
-    {{ $.Values.channel.name }}:
+{{- range $i, $channel := .Values.channels }}
+    {{ $channel.Name }}:
         Consortium: SampleConsortium
         <<: *ChannelDefaults
         Application:
             <<: *ApplicationDefaults
             Organizations:
-{{- range $i, $org := .Values.orgs }}
-                - *{{ $org.Name }}
+{{- range $i, $channelOrg := $channel.Orgs }}
+                - *{{ $channelOrg }}
 {{- end }}
             Capabilities:
                 <<: *ApplicationCapabilities
+{{- end }}
