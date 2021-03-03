@@ -2,12 +2,6 @@ import { ChannelRequest } from '../request'
 import RequestNetwork from '../request/NetworkRequest'
 import { IOrder, IOrganization, IPeer, IChannel } from './useInterface'
 
-
-const validateData = (data: Object) => {
-  const elements = Object.values(data)
-  return elements.every(element => Array.isArray(element) && element.length !== 0)
-}
-
 const organizations = async() => {
   try {
     const orgs = await RequestNetwork.getNetworkByArg('organization')

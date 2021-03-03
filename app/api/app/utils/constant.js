@@ -16,5 +16,10 @@ exports.model = {
     network: 'network'
 }
 
+exports.chaincode = {
+    new: 'New',
+    instantiation: 'Instantiated'
+}
+
 exports.domain = 'example.com'
 exports.defaultNetwork = 'blocktrace'

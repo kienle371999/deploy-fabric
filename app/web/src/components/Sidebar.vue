@@ -89,8 +89,8 @@
         </router-link>
         <router-link
           class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4"
-          :class="[$route.name === 'JoinChannel' ? activeClass : inactiveClass]"
-          to="/join-channel"
+          :class="[$route.name === 'Chaincode' ? activeClass : inactiveClass]"
+          to="/chaincode"
         >
           <svg
             class="h-5 w-5"

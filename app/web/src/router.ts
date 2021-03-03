@@ -11,8 +11,7 @@ import Blank from "./views/Blank.vue";
 import NotFound from "./views/NotFound.vue";
 import NetworkConfiguration from "./views/NetworkConfiguration.vue";
 import NetworkSetup from "./views/NetworkSetup.vue";
-import JoinChannel from "./views/JoinChannel.vue";
-
+import Chaincode from "./views/Chaincode.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -62,9 +61,9 @@ const routes: RouteRecordRaw[] = [
     component: NetworkSetup,
   },
   {
-    path: "/join-channel",
-    name: "JoinChannel",
-    component: JoinChannel,
+    path: "/chaincode",
+    name: "Chaincode",
+    component: Chaincode,
   }
 ];
 

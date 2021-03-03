@@ -7,15 +7,24 @@ const ChaincodeSchema = new Schema({
     maxlength: 255,
     required: true
   },
-  status: {
+  channel: {
+    type: Schema.Types.ObjectId,
+    ref: 'Channel'
+  },
+  network: {
+    type: Schema.Types.ObjectId,
+    ref: 'Network'
+  },
+  path: {
     type: String,
     maxlength: 255,
     required: true
   },
-  peers: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Peer'
-  }]
+  status: {
+    type: String,
+    maxlength: 255,
+    required: true
+  }
 }, { timestamps: true })
 
 const Chaincode = mongoose.model('Chaincode', ChaincodeSchema)

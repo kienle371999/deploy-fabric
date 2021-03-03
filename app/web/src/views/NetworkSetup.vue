@@ -152,15 +152,15 @@ const validateData = (data: Object) => {
 
 const crawlData = async() => {
   try {
-        const { vOrgs, vOrders, vPeers, vNetwork } = await useNetworkData('networkSetup')
-        if(vNetwork && validateData({ vOrgs, vOrders, vPeers })) {
-          return { vOrgs, vOrders, vPeers, vNetwork }
-        } 
-        return false
-      }
-      catch(error) {
-        return
-      }
+    const { vOrgs, vOrders, vPeers, vNetwork } = await useNetworkData('networkSetup')
+    if(vNetwork && validateData({ vOrgs, vOrders, vPeers })) {
+      return { vOrgs, vOrders, vPeers, vNetwork }
+    } 
+    return false
+  }
+  catch(error) {
+    return
+  }
 }
 
 export default defineComponent({
@@ -193,10 +193,6 @@ export default defineComponent({
         buttonState.value = { color: 'red', message: 'Stop Network' }
       }
     }
-
-    computed(async() => {
-      await crawlData()
-    })
 
     function changeComponent(name: string) {
       componentName.value = name
@@ -231,6 +227,7 @@ export default defineComponent({
         if(networkRes) {
           loader.hide()
           buttonState.value = { color: 'red', message: 'Stop Network' }
+          this.$toast.success('Successfully start network')
         }
       }
       catch(error) {
@@ -240,7 +237,6 @@ export default defineComponent({
     }
 
     async function close() {
-      await crawlData()
       edit.value = false
       remove.value = false
     }

@@ -36,6 +36,13 @@ export interface IChannel {
    orgs: string[]
 }
 
+export interface IChaincode {
+   name: string
+   channel: string
+   path?: string
+   status?: string
+}
+
 export interface INetworkButton {
    color: string
    message: string
