@@ -13,33 +13,3 @@ network:
         {{- if $i }}, {{- end }}
         {{- $org.Name }}
 {{- end }}]
-
-  # defines which chaincodes will be installed to which organizations
-  chaincodes:
-    - name: fabcar
-      # if defined, this will override the global chaincode.version value
-      version: # "2.0" 
-      # chaincode will be installed to all peers in these organizations
-      orgs: [
-{{- range $i, $org := .Values.orgs }}
-        {{- if $i }}, {{- end }}
-        {{- $org.Name }}
-{{- end }}]
-      # at which channels are we instantiating/upgrading chaincode?
-      channels:
-      - name: mychannel
-        # chaincode will be instantiated/upgraded using the first peer in the first organization
-        # chaincode will be invoked on all peers in these organizations
-        orgs: [
-{{- range $i, $org := .Values.orgs }}
-        {{- if $i }}, {{- end }}
-        {{- $org.Name }}
-{{- end }}]
-        policy: OR(
-{{- range $i, $org := .Values.orgs }}
-        {{- if $i }}, {{- end }}
-        {{- printf "%s%s" $org.Name "MSP.member" | quote }}
-{{- end }})
-
-
-

@@ -11,12 +11,12 @@ set -e
 project_folder=$1
 chaincode_folder=$2
 
-config_file=$project_folder/network.yaml
+config_file=$project_folder/chaincode-config.yaml
 
 rm -rf hlf-kube/chaincode
 mkdir -p hlf-kube/chaincode
 
-chaincodes=$(yq ".network.chaincodes[].name" $config_file -c -r)
+chaincodes=$(yq ".chaincodes[].name" $config_file -c -r)
 for chaincode in $chaincodes; do
   echo "creating chaincodes/$chaincode.tar"
   

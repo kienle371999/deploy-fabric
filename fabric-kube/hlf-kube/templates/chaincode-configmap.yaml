@@ -1,5 +1,5 @@
-{{- if $.Values.network.chaincodes }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- if $.Values.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

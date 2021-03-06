@@ -73,7 +73,7 @@ spec:
 {{- end }} {{- /* Orgs */ -}}{{""}}
 
   # chaincodes configMaps
-  {{- range $i, $chaincode := $.Values.network.chaincodes }}    
+  {{- range $i, $chaincode := $.Values.chaincodes }}    
   {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
   - name: chaincode-{{ $chaincode.name | lower }}
     configMap:
@@ -86,7 +86,7 @@ spec:
     steps:
 # top level: chaincodes
 {{- $_ := set $vars "firstStep" true }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- if or $vars.firstStep (not $.Values.flow.chaincode.parallel) }}
     - 
@@ -98,7 +98,7 @@ spec:
 {{- end }} {{- /* chaincodes */ -}}{{""}}
 
 # second level: chaincode templates
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
   - name: chaincode--{{ $chaincode.name }}
@@ -120,7 +120,7 @@ spec:
 
 # third level: prepare chaincode templates
 {{- if $.Values.flow.install.enabled }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $_ := set $vars "firstStep" true }}
@@ -143,7 +143,7 @@ spec:
 
 # third level: install chaincode templates
 {{- if $.Values.flow.install.enabled }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $_ := set $vars "firstStep" true }}
@@ -174,7 +174,7 @@ spec:
 # third level: approve chaincode templates
 {{- if $.Values.flow.approve.enabled }}
 
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $_ := set $vars "firstStep" true }}
@@ -205,7 +205,7 @@ spec:
 
 # third level: commit chaincode templates
 {{- if $.Values.flow.commit.enabled }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $_ := set $vars "firstStep" true }}
@@ -230,7 +230,7 @@ spec:
 # third level: invoke chaincode templates
 {{- if $.Values.flow.invoke.enabled }}
 
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $_ := set $vars "firstStep" true }}
@@ -251,7 +251,7 @@ spec:
 {{- end }} {{- /* if flow.invoke.enabled */ -}}{{""}}
 
 # leaf package chaincode
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $orgName := index $chaincode.orgs 0 }}
@@ -308,7 +308,7 @@ spec:
 
 # leaf install templates
 {{- if $.Values.flow.install.enabled }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $language := (not $chaincode.language) | ternary $.Values.chaincode.language $chaincode.language }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
@@ -375,7 +375,7 @@ spec:
 
 # leaf approve templates
 {{- if $.Values.flow.approve.enabled }}
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- $language := (not $chaincode.language) | ternary $.Values.chaincode.language $chaincode.language }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
@@ -445,7 +445,7 @@ spec:
 {{ end }} {{- /* if flow.approve.enabled */ -}}{{""}}
 
 # leaf commit chaincode
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- range $channel := $chaincode.channels }}
@@ -549,7 +549,7 @@ spec:
 
 
 # leaf invoke templates
-{{- range $i, $chaincode := .Values.network.chaincodes }}
+{{- range $i, $chaincode := .Values.chaincodes }}
 {{- if or (not $.Values.flow.chaincode.include) (has $chaincode.name $.Values.flow.chaincode.include) }}
 {{- $version := (not $chaincode.version) | ternary $.Values.chaincode.version $chaincode.version }}
 {{- range $channel := $chaincode.channels }}

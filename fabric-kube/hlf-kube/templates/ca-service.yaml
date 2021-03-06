@@ -1,6 +1,4 @@
 {{- range $i, $org := .Values.PeerOrgs }}
-{{- range $i, $ca := $.Values.caAccount }}
-{{- if eq $ca.organization $org.Name }}
 
 apiVersion: v1
 kind: Service
@@ -9,15 +7,12 @@ metadata:
   labels:
     name: hlf-ca--{{ $org.Name | lower }}
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: hlf-ca--{{ $org.Name | lower }}
   ports:
   - protocol: TCP
     port: 7054
-    nodePort: {{ $ca.port }}
     name: http
 ---
-{{- end }} {{- /* if CAs */ -}} 
-{{- end }} {{- /* CAs */ -}}
 {{- end }} {{- /* Orgs */ -}}

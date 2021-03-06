@@ -79,17 +79,22 @@ const addNetwork = async(args) => {
       name: `peer0`,
       status: status.new
     })
+
     const newChannel = await Promise.map(channels, async(channel) => {
       const alteredOrgIds = await Promise.map(channel.orgs, async(orgName) => {
         const organization = await Organization.findOne({ name: orgName })
         return organization._id
       })
-      const vChannel = await Channel.create({
+      
+      const vChannel = await Channel.findOne({ name: channel.name })
+      if(vChannel) throw new Error('Channel Name must be distinct')
+
+      const newChannel = await Channel.create({
         name: channel.name,
         network: newNetwork._id,
         organizations: alteredOrgIds
       })
-      return vChannel
+      return newChannel
     })
 
     return { newNetwork, newChannel }
