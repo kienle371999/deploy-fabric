@@ -1,11 +1,9 @@
 {{- if .Values.peer.launchPods }}
 {{- range $i, $org := $.Values.PeerOrgs }}
 {{- range $peerIndex := until ($org.Template.Count | int) }}
-{{- range $i, $peerCouchDB := $.Values.couchdbAccount }}
 {{- $peer := (printf "peer%s" ($peerIndex | toString)) }}
-{{- $peerDomain := (printf "%s.%s" $peer $org.Domain) }}
 {{- $peerAddress := $.Values.useActualDomains | ternary (printf "%s.%s:7051" $peer $org.Domain) (printf "hlf-peer--%s--%s:7051" ($org.Name | lower) ($peer | lower)) }}
-{{- if eq $peerCouchDB.domain $peerDomain }}
+# peerAddress: {{ $peerAddress }}
 
 apiVersion: apps/v1
 kind: StatefulSet
@@ -301,9 +299,9 @@ spec:
         - name: CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS
           value: localhost:5984
         - name: CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME
-          value: {{ $peerCouchDB.userName | quote }}
+          value: {{ $.Values.couchdb.userName | quote }}
         - name: CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD
-          value: {{ $peerCouchDB.password | quote }}
+          value: {{ $.Values.couchdb.password | quote }}
         
         - name: HFC_LOGGING
           value: '{"info":"console"}'
@@ -338,14 +336,12 @@ spec:
         
         env:
         - name: COUCHDB_USER
-          value: {{ $peerCouchDB.userName | quote }}
+          value: {{ $.Values.couchdb.userName | quote }}
         - name: COUCHDB_PASSWORD
-          value: {{ $peerCouchDB.password | quote }}
+          value: {{ $.Values.couchdb.password | quote }}
 
       {{- end }} {{- /* if/else backup/restore enabled */ -}}{{""}}
 ---
-{{- end }} {{- /* if Domain */ -}}  
-{{- end }} {{- /* Peers CouchDB */ -}}
 {{- end }} {{- /* Peers */ -}}
 {{- end }} {{- /* Orgs */ -}}
 {{- end }} {{- /* if launchPods */ -}}

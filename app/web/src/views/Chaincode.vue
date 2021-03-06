@@ -19,14 +19,20 @@
                 </div>
                 <div class="pt-8">
                   <label class="text-gray-700" for="chaincode_name">{{ 'Channel Name' }}</label>
-                  <input 
+                  <!-- <input 
                     class="form-input w-full mt-2 rounded-md" 
                     :class="[chaincodeError.channel.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
                     type="text" 
                     v-model="chaincode.channel"/>
                   <div v-if="chaincodeError.channel.status">
                     <div class="mt-2 text-red-700">{{ chaincodeError.channel.message }}</div>
-                  </div>
+                  </div> -->
+                  <multi-select class="mt-2 border-red-600 focus:border-indigo-600"
+                    v-model="chaincode.channel"
+                    mode="single"
+                    :allow-empty="true"
+                    placeholder="Select"
+                    :options="channelOptions"/>
                 </div>
                 <div class="pt-8">
                   <label class="text-gray-700" for="chaincode_name">{{ 'Chaincode Path' }}</label>
@@ -51,19 +57,32 @@
                     <tr>
                       <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs text-center font-semibold text-gray-600 uppercase tracking-wider">{{ 'Chaincode Name' }}</th>
                       <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs text-center font-semibold text-gray-600 uppercase tracking-wider">{{ 'Chaincode Channel' }}</th>
-                      <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs text-center font-semibold text-gray-600 uppercase tracking-wider">{{ 'Chaincode Status' }}</th>
+                      <th class="px-6 py-3 w-1/6 border-b-2 border-gray-200 bg-gray-100 text-left text-xs text-center font-semibold text-gray-600 uppercase tracking-wider">{{ 'Action' }}</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white">
                     <tr v-for="(chaincode, index) in chaincodeTableData" :key="index">
-                      <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
+                      <td class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm">
                           <span>{{ chaincode.name }}</span>
                       </td>
-                      <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
-                        <span>{{ chaincode.channel }}</span>
+                      <td class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm">
+                        <span>{{ chaincode.channel.name }}</span>
                       </td>
-                      <td class="px-6 py-5 border-b border-gray-200 bg-white text-sm">
-                        <span>{{ chaincode.status }}</span>
+                      <td 
+                      class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm"
+                      v-if="chaincode.status === 'New'">
+                        <button 
+                          class="px-4 py-2 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+                          @click="instantiate()"
+                        >{{ 'Instantiate' }}</button>
+                      </td>
+                      <td
+                      class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm"
+                      v-else>
+                        <button 
+                          class="px-4 py-2 bg-gray-500 text-gray-200 rounded-md"
+                          :disabled="true"
+                        >{{ 'Instantiated' }}</button>
                       </td>
                     </tr>
                   </tbody>
@@ -101,13 +120,24 @@ interface ChaincodeError {
   }
 }
 
+const validateData = (data: Object) => {
+  const elements = Object.values(data)
+  return elements.every(element => Array.isArray(element) && element.length !== 0)
+}
+
 const crawlData = async() => {
   try {
-    const vChaincodes = chaincodes()
-    if(Array.isArray(vChaincodes) && vChaincodes.length !== 0) {
-      return vChaincodes
+    const { vChannels, vChaincodes } = await chaincodes()
+    if(validateData({ vChaincodes })) {
+      return {
+        status: true,
+        data: { vChannels, vChaincodes }
+       }
     }
-    return false
+    return {
+      status: false,
+      data: { vChannels }
+    }
   }
   catch(error) {
     return
@@ -117,6 +147,7 @@ const crawlData = async() => {
 export default defineComponent({
   async setup() {
     const startWatch = ref<Boolean>(false)
+    const channelOptions = ref<String[]>([])
     const chaincode = ref<IChaincode>({
       name: '',
       channel: '',
@@ -139,8 +170,14 @@ export default defineComponent({
     })
 
     const crawledData = await crawlData()
-    if(crawledData) {
-      chaincodeTableData.value = crawledData.map(data => {
+    channelOptions.value = crawledData.data.vChannels.map(channel => {
+      return {
+        value: channel.name,
+        label: channel.name
+      }
+    })
+    if(crawledData.status) {
+      chaincodeTableData.value = crawledData.data.vChaincodes.map(data => {
         return {
           name: data.name,
           channel: data.channel,
@@ -150,6 +187,7 @@ export default defineComponent({
     }
 
     function handleForm() {
+      console.log(chaincode.value.channel)
       startWatch.value = true
       chaincodeError.value.name = validateForm('Chaincode', chaincode.value.name)
       chaincodeError.value.channel = validateForm('Channel Name', chaincode.value.channel)
@@ -176,6 +214,12 @@ export default defineComponent({
         try {
           const res = await ChaincodeRequest.creatChaincode(chaincode.value)
           if(res) {
+            chaincode.value = {
+              name: '',
+              channel: '',
+              path: ''
+            }
+            startWatch.value = false
             this.$toast.success('Successfully add chaincode')
           }
         }
@@ -190,6 +234,7 @@ export default defineComponent({
       chaincode,
       chaincodeError,
       chaincodeTableData,
+      channelOptions,
       submit
     }
   }

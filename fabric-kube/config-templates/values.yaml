@@ -38,7 +38,7 @@ orgs:
           port: 30033
     UserCount: 1
 channels:
-  - Name: fabcar
+  - Name: mychannel
     Orgs: 
       - Org1
       - Org2

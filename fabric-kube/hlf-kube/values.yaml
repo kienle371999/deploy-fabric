@@ -1,3 +1,4 @@
+# Source: config-templates/templates/hlf-kube-value.yaml
 # Default values for hlf-kube.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -52,7 +53,7 @@ peer:
     enabled: false
     size: 16Gi
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       # this should match the ingressClass when peer ingress controller is created
       kubernetes.io/ingress.class: "hlf-peer"
@@ -85,8 +86,6 @@ peer:
 # CouchDB settings. applies to all CouchDB's
 couchdb:
   version: 0.4.18
-  userName: 
-  password:
   persistence:
     enabled: false
     size: 16Gi
@@ -99,6 +98,25 @@ couchdb:
     # restore CouchDB's data from backup during restore procedure?
     enabled: true
 
+# CouchDB accounts
+couchdbAccount:
+  - domain: peer0.org1.example.com
+    userName: admin
+    password: adminpw123
+    port:  30030
+  - domain: peer1.org1.example.com
+    userName: admin
+    password: adminpw345
+    port:  30031
+  - domain: peer0.org2.example.com
+    userName: admin
+    password: adminpw678
+    port:  30032
+  - domain: peer1.org2.example.com
+    userName: admin
+    password: adminpw789
+    port:  30033
+  
 # Orderer settings. applies to all Orderer pods
 orderer:
   # should be greater than 1 only if kafka orderer is used
@@ -117,7 +135,7 @@ orderer:
     # raft cluster communication port. should be in synch with consenters in configtx.yaml
     port: 7059
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       # this should match the ingressClass when orderer ingress controller is created
       kubernetes.io/ingress.class: "hlf-orderer"
@@ -149,16 +167,23 @@ orderer:
 
 # CA (Certificate Authority) settings. applies to all CA's
 ca:
-  userName: admin
-  password: adminpw
-  logLevel: info
   ingress:
-    enabled: true
+    enabled: false
+
+# CA Accounts
+caAccount:
+  - organization: Org1
+    userName: admin
+    password: adminpw11
+    port: 32000
+    logLevel: info
+  - organization: Org2
+    userName: admin
+    password: adminpw11
+    port: 32010
+    logLevel: info
 
 # chaincode settings
 chaincode:
   # fill in this array with chaincode names to limit the chaincode ConfigMap only to these ones
   include: []
-
-      
-

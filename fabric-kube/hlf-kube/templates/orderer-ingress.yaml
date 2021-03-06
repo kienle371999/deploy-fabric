@@ -1,5 +1,5 @@
 {{- if .Values.orderer.ingress.enabled -}}
-apiVersion: networking.k8s.io/v1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: hlf-orderer--ingress
@@ -16,12 +16,9 @@ spec:
     http:
       paths:
       - path: /
-        pathType: Prefix
         backend: 
-          service:
-            name: hlf-orderer--{{ $org.Name | lower }}--{{ $host.Hostname | lower }}
-            port: 
-              number: 7050
+          serviceName: hlf-orderer--{{ $org.Name | lower }}--{{ $host.Hostname | lower }}
+          servicePort: 7050
 {{- end }} {{- /* org.Specs */ -}}
 {{- end }} {{- /* OrdererOrgs */ -}}{{""}}
 {{- end }} {{- /* if ingress.enabled */ -}}

@@ -131,8 +131,6 @@ spec:
 {{- range $i, $org := $.Values.PeerOrgs }}
 
 {{- if eq $orgName $org.Name }}
-    - - name: download-chaincode--{{ $chaincode.name }}-{{ $version | replace "." "-" }}
-        template: download-chaincode--{{ $chaincode.name }}-{{ $version | replace "." "-" }}
     - - name: package-chaincode--{{ $chaincode.name }}-{{ $version | replace "." "-" }}
         template: package-chaincode--{{ $chaincode.name }}-{{ $version | replace "." "-" }}
 
@@ -260,30 +258,6 @@ spec:
 {{- range $i, $org := $.Values.PeerOrgs }}
 
 {{- if eq $orgName $org.Name }}
-
-  - name: download-chaincode--{{ $chaincode.name }}-{{ $version | replace "." "-" }}
-    # org: {{ $org.Name }}
-    inputs:
-    retryStrategy:
-      limit: {{ $.Values.retryCount }}
-    script:
-      image: banst/awscli
-      command: [sh]
-      source: |
-          cd /data && rm -rf * && mkdir download &&  aws s3 sync s3://sota-console-test download --endpoint-url https://s3.amazonaws.com
-
-      volumeMounts:
-        - mountPath: /data
-          name: chaincodes-pv-storage
-      
-      env:
-        - name: AWS_ACCESS_KEY_ID
-          value: {{ $.Values.aws.aws_key }}
-        - name: AWS_SECRET_ACCESS_KEY
-          value: {{ $.Values.aws.aws_secret }}
-        - name: AWS_DEFAULT_REGION
-          value: {{ $.Values.aws.aws_region }}
-
   - name: package-chaincode--{{ $chaincode.name }}-{{ $version | replace "." "-" }}
     # org: {{ $org.Name }}
     inputs:
@@ -295,7 +269,7 @@ spec:
       source: |
           mkdir -p /data/src && 
           mkdir -p /data/packages && 
-          tar -xf /data/download/{{ $chaincode.name }}.tar -C /data/src && 
+          tar -xf /hlf_config/chaincode/{{ $chaincode.name }}.tar -C /data/src && 
           peer lifecycle chaincode package /data/packages/{{ $chaincode.name }}.tar.gz --path /data/src/{{ $chaincode.name }} --lang golang --label {{ $chaincode.name }}_{{ $version }}
 
       volumeMounts:
@@ -305,6 +279,8 @@ spec:
           name: orderer-tlsca
         - mountPath: /etc/hyperledger/fabric/msp/
           name: peer-{{ $org.Name | lower }}-admin-msp
+        - mountPath: /hlf_config/chaincode/
+          name: chaincode-{{ $chaincode.name | lower }}
 
         # external peer org msp's required for configtxgen
         {{- range $i, $org := $.Values.ExternalPeerOrgs }}
@@ -425,10 +401,10 @@ spec:
       image: hyperledger/fabric-tools:{{ $.Values.hyperledgerVersion }}
       command: [bash]
       source: |
-          peer lifecycle chaincode queryinstalled >&log.txt &&
-          PACKAGE_ID=$(sed -n "/{{ $chaincode.name }}_{{ $version }}/{s/^Package ID: //; s/, Label:.*$//; p;}" log.txt) &&
-          echo $PACKAGE_ID && 
-          peer lifecycle chaincode approveformyorg -C {{ $channel.name }} -o {{ $vars.ordererUrl }} --name {{ $chaincode.name }} --version {{ $version }} --init-required --package-id $PACKAGE_ID --sequence {{ $version }} --waitForEvent
+        peer lifecycle chaincode queryinstalled >&log.txt &&
+        PACKAGE_ID=$(sed -n "/{{ $chaincode.name }}_{{ $version }}/{s/^Package ID: //; s/, Label:.*$//; p;}" log.txt) &&
+        echo $PACKAGE_ID && 
+        peer lifecycle chaincode approveformyorg -C {{ $channel.name }} -o {{ $vars.ordererUrl }} --name {{ $chaincode.name }} --version {{ $version }} --init-required --package-id $PACKAGE_ID --sequence {{ $version }} --waitForEvent
           
       volumeMounts:
         - mountPath: /hlf_config/orderer-tlsca

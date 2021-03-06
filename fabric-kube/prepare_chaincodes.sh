@@ -13,14 +13,14 @@ chaincode_folder=$2
 
 config_file=$project_folder/network.yaml
 
-rm -rf chaincodes
-mkdir -p chaincodes
+rm -rf hlf-kube/chaincode
+mkdir -p hlf-kube/chaincode
 
 chaincodes=$(yq ".network.chaincodes[].name" $config_file -c -r)
 for chaincode in $chaincodes; do
   echo "creating chaincodes/$chaincode.tar"
   
-  tar -czf chaincodes/$chaincode.tar -C $chaincode_folder $chaincode/
-  aws s3 cp chaincodes/$chaincode.tar s3://sota-console-test/$chaincode.tar
+  tar -czf hlf-kube/chaincode/$chaincode.tar -C $chaincode_folder $chaincode/
+  # aws s3 cp chaincodes/$chaincode.tar s3://sota-console-test/$chaincode.tar
 done
 

@@ -15,7 +15,12 @@ const getChaincode = async() => {
     const network = await Network.findOne({ name: defaultNetwork })
     if(!network) return []
     
-    const chaincodes = await Chaincode.find({ network: network._id })
+    const chaincodes = await Chaincode
+    .find({ network: network._id })
+    .populate({
+      path: 'channel',
+      select: 'name'
+    })
     return chaincodes
 
   }
@@ -33,8 +38,12 @@ const createChaincode = async(args) => {
 
     const existedChaincode = await Chaincode.findOne({ name: name })
     if(existedChaincode) throw new Error('Duplicate Chaincode Name')
+
     const existedChannel = await Channel.findOne({ name: channel })
     if(!existedChannel) throw new Error('Channel must exist')
+
+    const existedPath = await Chaincode.findOne({ path: path })
+    if(existedPath) throw new Error('Duplicate Chaincode Path')
     const fullPath = process.env.CHAINCODE_PATH.concat(path)
     if(!fs.existsSync(fullPath)) throw new Error('Chaincode Path do not exsit')
     return { 
@@ -69,7 +78,12 @@ const createChaincode = async(args) => {
   }
 }
 
+const startChaincode = async() => {
+
+}
+
 module.exports = {
     getChaincode,
-    createChaincode
+    createChaincode,
+    startChaincode
 }

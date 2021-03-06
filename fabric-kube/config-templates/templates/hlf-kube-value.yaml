@@ -52,7 +52,7 @@ peer:
     enabled: false
     size: 16Gi
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       # this should match the ingressClass when peer ingress controller is created
       kubernetes.io/ingress.class: "hlf-peer"
@@ -126,7 +126,7 @@ orderer:
     # raft cluster communication port. should be in synch with consenters in configtx.yaml
     port: 7059
   ingress:
-    enabled: true
+    enabled: false
     annotations:
       # this should match the ingressClass when orderer ingress controller is created
       kubernetes.io/ingress.class: "hlf-orderer"
@@ -159,7 +159,7 @@ orderer:
 # CA (Certificate Authority) settings. applies to all CA's
 ca:
   ingress:
-    enabled: true
+    enabled: false
 
 # CA Accounts
 caAccount:
