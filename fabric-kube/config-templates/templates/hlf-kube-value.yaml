@@ -52,7 +52,7 @@ peer:
     enabled: false
     size: 16Gi
   ingress:
-    enabled: false
+    enabled: true
     annotations:
       # this should match the ingressClass when peer ingress controller is created
       kubernetes.io/ingress.class: "hlf-peer"
@@ -81,6 +81,14 @@ peer:
   metrics:
     enabled: false
     provider: prometheus
+
+peerAccount:
+  {{- range $i, $org := .Values.orgs }}
+  {{- range $i, $peer := $org.Peers }}
+  - domain: {{ $peer.Domain }}
+    port:  {{ $peer.Port }}
+  {{- end }} 
+  {{- end }}
     
 # CouchDB settings. applies to all CouchDB's
 couchdb:

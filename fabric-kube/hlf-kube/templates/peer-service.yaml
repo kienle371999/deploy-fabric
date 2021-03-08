@@ -1,6 +1,9 @@
 {{- range $i, $org := .Values.PeerOrgs }}
 {{- range $peerIndex := until ($org.Template.Count | int) }}
+{{- range $i, $peerAccount := $.Values.peerAccount }}
 {{- $peer := (printf "peer%s" ($peerIndex | toString)) }}
+{{- $peerDomain := (printf "%s.%s" $peer $org.Domain) }}
+{{- if eq $peerAccount.domain $peerDomain }}
 
 apiVersion: v1
 kind: Service
@@ -13,13 +16,14 @@ metadata:
     addToHostAliases: "true"
     
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     name: hlf-peer
     app: hlf-peer--{{ $org.Name | lower }}--{{ $peer | lower }}
   ports:
   - protocol: TCP
     port: 7051
+    nodePort: {{ $peerAccount.port }}
     name: grpc
   {{- if $.Values.peer.operations.enabled }}
   - protocol: TCP
@@ -30,5 +34,7 @@ spec:
     port: 7052
     name: chaincode
 ---
+{{- end }} {{- /* If Peer Accounts */ -}} 
+{{- end }} {{- /* Peer Accounts */ -}}
 {{- end }} {{- /* Peers */ -}}
 {{- end }} {{- /* Orgs */ -}}

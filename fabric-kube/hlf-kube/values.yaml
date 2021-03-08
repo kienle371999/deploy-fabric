@@ -53,7 +53,7 @@ peer:
     enabled: false
     size: 16Gi
   ingress:
-    enabled: false
+    enabled: true
     annotations:
       # this should match the ingressClass when peer ingress controller is created
       kubernetes.io/ingress.class: "hlf-peer"
@@ -82,6 +82,16 @@ peer:
   metrics:
     enabled: false
     provider: prometheus
+
+peerAccount:
+  - domain: peer0.org1.example.com
+    port:  30050
+  - domain: peer1.org1.example.com
+    port:  30060
+  - domain: peer0.org2.example.com
+    port:  30070
+  - domain: peer1.org2.example.com
+    port:  30080
     
 # CouchDB settings. applies to all CouchDB's
 couchdb:
@@ -101,21 +111,21 @@ couchdb:
 # CouchDB accounts
 couchdbAccount:
   - domain: peer0.org1.example.com
-    userName: 
-    password: adminpw
-    port:  32000
+    userName: admin
+    password: adminpw123
+    port:  30030
   - domain: peer1.org1.example.com
-    userName: 
-    password: adminpw
-    port:  32010
+    userName: admin
+    password: adminpw345
+    port:  30031
   - domain: peer0.org2.example.com
-    userName: 
-    password: adminpw
-    port:  32020
+    userName: admin
+    password: adminpw678
+    port:  30032
   - domain: peer1.org2.example.com
-    userName: 
-    password: adminpw
-    port:  32070
+    userName: admin
+    password: adminpw789
+    port:  30033
   
 # Orderer settings. applies to all Orderer pods
 orderer:
@@ -172,15 +182,15 @@ ca:
 
 # CA Accounts
 caAccount:
-  - organization: org1
-    userName: admin1
-    password: adminpw
-    port: 30010
+  - organization: Org1
+    userName: admin
+    password: adminpw11
+    port: 32000
     logLevel: info
-  - organization: org2
-    userName: admin2
-    password: adminpw
-    port: 30020
+  - organization: Org2
+    userName: admin
+    password: adminpw11
+    port: 32010
     logLevel: info
 
 # chaincode settings

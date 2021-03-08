@@ -19,6 +19,7 @@ const OrgaizationSchema = new Schema({
     },
     ca_username: {
         type: String,
+        lowercase: true,
         maxlength: 255
     },
     ca_password: {

@@ -6,10 +6,12 @@ network:
 
   # defines which organizations will join to which channels
   channels:
-    - name: mychannel
+{{- range $i, $channel := .Values.channels }}
+    - name: {{ $channel.Name }}
       # all peers in these organizations will join the channel
       orgs: [
-{{- range $i, $org := .Values.orgs }}
+{{- range $i, $org := $channel.Orgs }}
         {{- if $i }}, {{- end }}
-        {{- $org.Name }}
+        {{- $org }}
 {{- end }}]
+{{- end }}

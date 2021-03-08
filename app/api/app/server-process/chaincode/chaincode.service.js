@@ -60,7 +60,7 @@ const createChaincode = async(args) => {
   const { name, channel, path } = await validateArgs(args)
   const network = await Network.findOne({ name: defaultNetwork })
   if(!network) throw new Error('Network must be found')
-  if(network.status === status.running) throw new Error('Network must run before installing chaincode')
+  if(network.status !== status.running) throw new Error('Network must run before installing chaincode')
 
   try {
     const vChaincode = await Chaincode.create({

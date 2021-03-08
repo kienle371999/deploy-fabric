@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({
 
 mongoose
   .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+    useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
@@ -33,6 +34,10 @@ mongoose
     console.error('Connection error', err)
     process.exit()
   });
+
+mongoose.set('useCreateIndex', true);
+
+
 
 app.use('/api', require('./routes'))
 

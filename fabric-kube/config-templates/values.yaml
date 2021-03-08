@@ -8,11 +8,13 @@ orgs:
       port: 32000
     Peers:
       - Domain: peer0.org1.example.com
+        Port: 30050
         CouchDB:
           username: admin
           password: adminpw123
           port: 30030
       - Domain: peer1.org1.example.com
+        Port: 30060
         CouchDB:
           username: admin
           password: adminpw345
@@ -27,11 +29,13 @@ orgs:
       port: 32010
     Peers:
       - Domain: peer0.org2.example.com
+        Port: 30070
         CouchDB:
           username: admin
           password: adminpw678
           port: 30032
       - Domain: peer1.org2.example.com
+        Port: 30080
         CouchDB:
           username: admin
           password: adminpw789

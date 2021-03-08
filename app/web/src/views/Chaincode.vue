@@ -144,6 +144,19 @@ const crawlData = async() => {
   }
 }
 
+const crawledChaincode = async(crawledData: any) => {
+  if(crawledData.status) {
+      return crawledData.data.vChaincodes.map(data => {
+        return {
+          name: data.name,
+          channel: data.channel,
+          status: data.status
+        }
+      })
+    }
+
+} 
+
 export default defineComponent({
   async setup() {
     const startWatch = ref<Boolean>(false)
@@ -176,18 +189,10 @@ export default defineComponent({
         label: channel.name
       }
     })
-    if(crawledData.status) {
-      chaincodeTableData.value = crawledData.data.vChaincodes.map(data => {
-        return {
-          name: data.name,
-          channel: data.channel,
-          status: data.status
-        }
-      })
-    }
 
+    chaincodeTableData.value = await crawledChaincode(crawledData)
+    
     function handleForm() {
-      console.log(chaincode.value.channel)
       startWatch.value = true
       chaincodeError.value.name = validateForm('Chaincode', chaincode.value.name)
       chaincodeError.value.channel = validateForm('Channel Name', chaincode.value.channel)
@@ -220,6 +225,8 @@ export default defineComponent({
               path: ''
             }
             startWatch.value = false
+            const crawledData = await crawlData()
+            chaincodeTableData.value = await crawledChaincode(crawledData)
             this.$toast.success('Successfully add chaincode')
           }
         }
