@@ -1,0 +1,63 @@
+{
+	"name": "first-network",
+	"version": "1.0.0",
+	"license": "Apache-2.0",
+	"client": {
+		"tlsEnable": false,
+		"adminCredential": {
+			"id": "admin",
+			"password": "adminpw"
+		},
+		"enableAuthentication": false,
+		"organization": "Org1MSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+
+	"channels": {
+		"mychannel": {
+			"peers": {
+				"peer0.org1.example.com": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"Org1MSP": {
+			"mspid": "Org1MSP",
+			"adminPrivateKey": {
+				"path": "/etc/hyperledger/fabric/admin-msp/keystore/key.pem"
+			},
+			"peers": ["peer0.org1.example.com"],
+			"signedCert": {
+				"path": "/etc/hyperledger/fabric/admin-msp/signcerts/cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0.org1.example.com": {
+			"tlsCACerts": {
+				"path": "/etc/hyperledger/fabric/tls/ca.crt"
+			},
+			"url": "grpcs://hlf-peer--org1--peer0:7051",
+			"grpcOptions": {
+				"ssl-target-name-override": "peer0.org1.example.com"
+			}
+		}
+	}
+}
+
