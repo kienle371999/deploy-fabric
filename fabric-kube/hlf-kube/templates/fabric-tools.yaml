@@ -1,15 +1,17 @@
+{{- $org := index $.Values.PeerOrgs 0 }}
+{{- $peerAddress := $.Values.useActualDomains | ternary (printf "peer0.%s:7051" $org.Domain) (printf "hlf-peer--%s--peer0:7051" ($org.Name | lower)) }}
 apiVersion: v1
 kind: Pod
 metadata:
   name: fabric-tools
 spec:
   volumes:
-  - name: chaincodes-pv-storage
+  - name: fabric-tool-storage
     persistentVolumeClaim:
-      claimName: chaincodes-pv-claim
-  - name: peer-org1-admin-msp
+      claimName: fabric-tool-pv-claim
+  - name: peer-{{ $org.Name | lower }}-admin-msp
     secret:
-      secretName: hlf-peer--org1--admin-msp
+      secretName: hlf-peer--{{ $org.Name | lower }}--admin-msp
       items:
       - key: config.yaml
         path: config.yaml
@@ -18,12 +20,15 @@ spec:
       - key: key.pem
         path: keystore/key.pem
       - key: cacert.pem
-        path: cacerts/ca.org1.example.com-cert.pem
+        path: cacerts/ca.{{ $org.Domain }}-cert.pem
       - key: tlscacert.pem
         path: tlscacerts/cert.pem
   - name: orderer-tlsca
     secret:
       secretName: hlf-orderer--orderer-tlsca
+  - name: peer-{{ $org.Name | lower }}-peer0-tls
+    secret:
+      secretName: hlf-peer--{{ $org.Name | lower }}--peer0-tls
   
   containers:
     - name: fabrictools
@@ -31,15 +36,18 @@ spec:
       imagePullPolicy: Always
       command: ["sh", "-c", "sleep 48h"]
       volumeMounts:
-        - mountPath: /data
-          name: chaincodes-pv-storage
+        - mountPath: /fabric-storage
+          name: fabric-tool-storage
         - mountPath: /etc/hyperledger/fabric/msp/
-          name: peer-org1-admin-msp
+          name: peer-{{ $org.Name | lower }}-admin-msp
+        - mountPath: /etc/hyperledger/fabric/tls/
+          name: peer-{{ $org.Name | lower }}-peer0-tls
         - mountPath: /hlf_config/orderer-tlsca
           name: orderer-tlsca
+        
       env:
         - name: CORE_PEER_ADDRESS
-          value: hlf-peer--org1--peer0:7051
+          value: {{ $peerAddress }}
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: FABRIC_LOGGING_SPEC

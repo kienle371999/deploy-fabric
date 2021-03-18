@@ -1,3 +1,5 @@
+{{- if $.Values.enabledPostgres }}
+{{- $org := index $.Values.PeerOrgs 0 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,12 +15,12 @@ spec:
         app: explorer-app
     spec:
       volumes:
-      - name: chaincodes-pv-storage
+      - name: fabric-tool-storage
         persistentVolumeClaim:
-          claimName: chaincodes-pv-claim
-      - name: peer-org1-admin-msp
+          claimName: fabric-tool-pv-claim
+      - name: peer-{{ $org.Name | lower }}-admin-msp
         secret:
-          secretName: hlf-peer--org1--admin-msp
+          secretName: hlf-peer--{{ $org.Name | lower }}--admin-msp
           items:
           - key: config.yaml
             path: config.yaml
@@ -27,27 +29,24 @@ spec:
           - key: key.pem
             path: keystore/key.pem
           - key: cacert.pem
-            path: cacerts/ca.org1.example.com-cert.pem
+            path: cacerts/ca.{{ $org.Domain }}-cert.pem
           - key: tlscacert.pem
             path: tlscacerts/cert.pem
-      - name: peer-org1-peer0-tls
+      - name: peer-{{ $org.Name | lower }}-peer0-tls
         secret:
-          secretName: hlf-peer--org1--peer0-tls
+          secretName: hlf-peer--{{ $org.Name | lower }}--peer0-tls
           items:
           - key: ca.crt
             path: ca.crt
       - name: orderer-tlsca
         secret:
           secretName: hlf-orderer--orderer-tlsca
-      - name: dockersocket
-        hostPath:
-          path: /var/run/docker.sock
 
       containers:
       - name: explorer
         image: hyperledger/explorer:latest
         imagePullPolicy: Always
-        command: ["sh", "-c", "sleep 48h"]
+        command: ["bash", "-c", ""chmod +x /fabric-storage/explorer-config/run-explorer-app.sh && /fabric-storage/explorer-config/run-explorer-app.sh"]
         env:
         - name: DATABASE_HOST
           value: blockchain-explorer-db
@@ -56,11 +55,12 @@ spec:
         - name: DATABASE_PASSWORD
           value: password
         volumeMounts:
-        - mountPath: /data
-          name: chaincodes-pv-storage
-        - mountPath: /etc/hyperledger/fabric/admin-msp/
-          name: peer-org1-admin-msp
+        - mountPath: /fabric-storage
+          name: fabric-tool-storage
+        - mountPath: /etc/hyperledger/fabric/msp/
+          name: peer-{{ $org.Name | lower }}-admin-msp
         - mountPath: /etc/hyperledger/fabric/tls/
-          name: peer-org1-peer0-tls
+          name: peer-{{ $org.Name | lower }}-peer0-tls
         - mountPath: /hlf_config/orderer-tlsca
           name: orderer-tlsca
+{{- end }}

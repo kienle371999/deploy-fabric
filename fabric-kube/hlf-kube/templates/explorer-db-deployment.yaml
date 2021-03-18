@@ -1,0 +1,37 @@
+{{- if $.Values.chaincodes }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blockchain-explorer-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: explorer-db
+  template:
+    metadata:
+      labels:
+        app: explorer-db
+    spec:
+      volumes:
+      - name: fabric-tool-storage
+        persistentVolumeClaim:
+          claimName: fabric-tool-pv-claim
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+          
+      containers:
+      - name: postgres
+        image: postgres:10.4-alpine
+        env:
+        - name: DATABASE_DATABASE
+          value: fabricexplorer
+        - name: DATABASE_USERNAME
+          value: hppoc
+        - name: DATABASE_PASSWORD
+          value: password
+        volumeMounts:
+        - mountPath: /fabric-storage
+          name: fabric-tool-storage
+{{- end }}

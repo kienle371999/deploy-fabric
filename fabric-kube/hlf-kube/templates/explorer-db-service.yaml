@@ -1,0 +1,16 @@
+{{- if $.Values.chaincodes }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-explorer-db
+  labels:
+    name: explorer-db
+spec:
+  type: ClusterIP 
+  selector:
+    app: explorer-db
+  ports:
+  - protocol: TCP
+    port: 5432
+    name: pgsql
+{{- end }}

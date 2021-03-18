@@ -1,0 +1,17 @@
+{{- if $.Values.enabledPostgres }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-explorer-app
+  labels:
+    name: explorer-app
+spec:
+  type: NodePort
+  selector:
+    app: explorer-app
+  ports:
+  - protocol: TCP
+    port: 8080
+    nodePort: 32075
+    name: explorer
+{{- end }}
