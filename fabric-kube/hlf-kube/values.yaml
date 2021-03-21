@@ -85,13 +85,13 @@ peer:
 
 peerAccount:
   - domain: peer0.org1.example.com
-    port:  30050
+    port:  
   - domain: peer1.org1.example.com
-    port:  30060
+    port:  
   - domain: peer0.org2.example.com
-    port:  30070
+    port:  
   - domain: peer1.org2.example.com
-    port:  30080
+    port:  
     
 # CouchDB settings. applies to all CouchDB's
 couchdb:
@@ -111,21 +111,21 @@ couchdb:
 # CouchDB accounts
 couchdbAccount:
   - domain: peer0.org1.example.com
-    userName: admin
-    password: adminpw123
-    port:  30030
+    userName: 
+    password: adminpw
+    port:  32000
   - domain: peer1.org1.example.com
-    userName: admin
-    password: adminpw345
-    port:  30031
+    userName: 
+    password: adminpw
+    port:  32010
   - domain: peer0.org2.example.com
-    userName: admin
-    password: adminpw678
-    port:  30032
+    userName: 
+    password: adminpw
+    port:  32080
   - domain: peer1.org2.example.com
-    userName: admin
-    password: adminpw789
-    port:  30033
+    userName: 
+    password: adminpw
+    port:  32090
   
 # Orderer settings. applies to all Orderer pods
 orderer:
@@ -182,15 +182,15 @@ ca:
 
 # CA Accounts
 caAccount:
-  - organization: Org1
+  - organization: org1
     userName: admin
-    password: adminpw11
-    port: 32000
+    password: adminpw
+    port: 30040
     logLevel: info
-  - organization: Org2
+  - organization: org2
     userName: admin
-    password: adminpw11
-    port: 32010
+    password: adminpw
+    port: 30010
     logLevel: info
 
 # chaincode settings

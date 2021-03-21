@@ -8,7 +8,7 @@ const Channel = require('../../models/channel.model')
 const yaml = require('js-yaml')
 const _ = require('lodash')
 const fs = require('fs')
-const { spawnSync, spawn } = require("child_process")
+const { spawnSync, spawn } = require('child_process')
 const Promise = require('bluebird')
  
 const _vArgs = (arg) => {
@@ -408,6 +408,7 @@ const startNetwork = async() => {
     }
   }
   catch(error) {
+    console.log("startNetwork -> error", error)
     throw new Error(error.message)
   }
 }

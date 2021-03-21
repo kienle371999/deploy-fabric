@@ -7,7 +7,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-3/5 pt-8 pl-8"
             v-for="(org, index) in organizations" :key="index">
             <div>
-              <label class="text-gray-700" for="org_name">{{ 'Organization' }}</label>
+              <label class="text-gray-700">{{ 'Organization' }}</label>
               <input 
                 class="form-input w-full mt-2 rounded-md" 
                 :class="[orgErrors.organizations[index].org_name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
@@ -41,7 +41,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-3/5 pt-8 pl-8"
             v-for="(channel, index) in channels" :key="index">
             <div>
-              <label class="text-gray-700" for="org_name">{{ 'Channel' }}</label>
+              <label class="text-gray-700">{{ 'Channel' }}</label>
               <input 
                 class="form-input w-full mt-2 rounded-md" 
                 :class="[channelErrors[index].name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
@@ -71,7 +71,7 @@
         <div class="m-8 border-2 border-gray-500">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-3/5 pt-8 pl-8 pb-8">
             <div>
-              <label class="text-gray-700" for="org_name">{{ 'Order' }}</label>
+              <label class="text-gray-700">{{ 'Order' }}</label>
               <input 
                 class="form-input w-full mt-2 rounded-md" 
                 :class="[orgErrors.order_name.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 

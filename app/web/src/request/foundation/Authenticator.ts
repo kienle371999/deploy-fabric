@@ -31,7 +31,6 @@ class Authenticator {
   }
 
   logOut() {
-    localStorageSetting._clearError()
     localStorageSetting._clearToken()
   }
 

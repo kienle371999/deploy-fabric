@@ -231,6 +231,7 @@ export default defineComponent({
         }
       }
       catch(error) {
+        console.log("start -> error", error)
         this.$toast.error(error.message)
         return
       }

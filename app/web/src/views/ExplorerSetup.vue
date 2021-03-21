@@ -17,7 +17,6 @@
             class="form-input w-full mt-2 rounded-md" 
             :class="[explorerError.port.status ? 'focus:border-red-600 border-red-600': 'focus:border-indigo-600']" 
             type="text" 
-            :disabled="configState"
             v-model="explorer.port"/>
           <div v-if="explorerError.port.status">
             <div class="mt-2 text-red-700">{{ explorerError.port.message }}</div>
@@ -63,7 +62,6 @@ const crawlData = async() => {
 export default defineComponent({
   async setup() {
     const startWatch = ref<Boolean>(false)
-    const configState = ref<boolean>(false)
     const explorer = ref<Explorer>({ name: 'Blocktrace Explorer', port: '' })
     const explorerError = ref<ExplorerError>({
       port: {
@@ -75,7 +73,6 @@ export default defineComponent({
     const crawledData = await crawlData()
     if(crawledData) {
       explorer.value = { name: crawledData.name, port: crawledData.port }
-      configState.value = true
     }
 
     function handleForm() {
@@ -85,7 +82,7 @@ export default defineComponent({
 
     function checkState() {
       let state: boolean = true
-      if(explorerError.value.port) state = false
+      if(explorerError.value.port.status) state = false
       return state
     }
 
@@ -114,7 +111,7 @@ export default defineComponent({
       }
     }
 
-    return { explorer, explorerError, configState, create }
+    return { explorer, explorerError, create }
   }
 })
 </script>

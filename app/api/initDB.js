@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 const dbConfig = require('./app/config/db.config')
-const mongoose = require('./app/models')
+const { mongoose } = require('./app/models')
 const User = require('./app/models/user.model')
 
 mongoose
