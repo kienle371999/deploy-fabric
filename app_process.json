@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "name": "app-service",
+      "script": "server.js",
+      "cwd": "app/api/app",
+      "watch": true
+    },
+    {
+      "name": "chaincode-service",
+      "script": "server.js",
+      "cwd": "fabcar-interaction",
+      "watch": true
+    }
+  ]
+}

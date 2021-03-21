@@ -1,0 +1,1 @@
+kubectl exec -it fabric-tools -- sh -c "peer chaincode query -C mychannel --name fabcar -c '{\"Args\":[\"queryAllCars\"]}'"

@@ -45,8 +45,10 @@ spec:
       containers:
       - name: explorer
         image: hyperledger/explorer:latest
-        imagePullPolicy: Always
-        command: ["bash", "-c", ""chmod +x /fabric-storage/explorer-config/run-explorer-app.sh && /fabric-storage/explorer-config/run-explorer-app.sh"]
+        lifecycle:
+          postStart:
+            exec:
+              command: ["sh", "-c", "cp /fabric-storage/explorer-config/config.json /opt/explorer/app/platform/fabric/connection-profile/test-network.json"]
         env:
         - name: DATABASE_HOST
           value: blockchain-explorer-db

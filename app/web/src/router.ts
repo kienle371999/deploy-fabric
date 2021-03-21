@@ -12,6 +12,7 @@ import NotFound from "./views/NotFound.vue";
 import NetworkConfiguration from "./views/NetworkConfiguration.vue";
 import NetworkSetup from "./views/NetworkSetup.vue";
 import Chaincode from "./views/Chaincode.vue";
+import ExplorerSetup from './views/ExplorerSetup.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -64,6 +65,11 @@ const routes: RouteRecordRaw[] = [
     path: "/chaincode",
     name: "Chaincode",
     component: Chaincode,
+  },
+  {
+    path: "/explorer",
+    name: 'Explorer',
+    component: ExplorerSetup
   }
 ];
 

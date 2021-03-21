@@ -210,12 +210,12 @@ const updateNetwork = async(args) => {
     if(!_vArgs(networkData.ca_password)) throw new Error('CA Password must be non-empty')
     if(!_vArgs(networkData.ca_port)) throw new Error('CA Port must be non-empty')
 
-    // const vCAPort = await Organization.findOne({ ca_port: networkData.ca_port })
-    // if(vCAPort) {
-    //   if(vCAPort.id !== networkData._id) throw new Error('Duplicate CA Port')
-    // }
-    // const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
-    // if(vCouchDBPort) throw new Error('Duplicate CA Port')
+    const vCAPort = await Organization.findOne({ ca_port: networkData.ca_port })
+    if(vCAPort) {
+      if(vCAPort.id !== networkData._id) throw new Error('Duplicate CA Port')
+    }
+    const vCouchDBPort = await Peer.findOne({ couchdb_port: networkData.ca_port })
+    if(vCouchDBPort) throw new Error('Duplicate CA Port')
 
     try {
       const vOrg = await Organization.findById(networkData._id)

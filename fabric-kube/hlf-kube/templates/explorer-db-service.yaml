@@ -1,4 +1,3 @@
-{{- if $.Values.chaincodes }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,4 +12,3 @@ spec:
   - protocol: TCP
     port: 5432
     name: pgsql
-{{- end }}

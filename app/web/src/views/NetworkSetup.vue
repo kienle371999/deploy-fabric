@@ -1,5 +1,5 @@
 <template>
- <div class="mt-8">
+  <div class="mt-8">
     <div class="mt-4">
       <div class="pb-6 pt-6 pl-12 pr-12 bg-white rounded-md shadow-md">
         <h3 class="text-gray-700 text-3xl font-medium text-center">{{ 'Network Setup' }}</h3>

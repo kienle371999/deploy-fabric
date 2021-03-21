@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const dbConfig = require('./config/db.config')
 const app = express()
-const mongoose = require('./models')
+const { mongoose } = require('./models')
 require('dotenv').config({ path: require('find-config')('.env') })
 
 var corsOptions = {

@@ -47,3 +47,8 @@ export interface INetworkButton {
    color: string
    message: string
 }
+
+export interface IExplorer {
+   name: string
+   port: string
+}

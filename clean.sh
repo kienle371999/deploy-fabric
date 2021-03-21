@@ -1,9 +1,7 @@
 #!/bin/bash
 
-PROJECT=${1:-test}
-
 if [ "$(helm  list -aq)" != "" ]; then 
-    helm uninstall $PROJECT
+    helm del $(helm ls --all --short) --purge
     argo delete --all
 fi
 
