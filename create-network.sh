@@ -14,7 +14,7 @@ fi
 echo "Creating configuration files for project $PROJECT"
 
 # Remove unnecessity 
-./clean.sh $PROJECT
+./clean.sh
 
 PROJECT_FOLDER=$PWD/networks/$PROJECT
 mkdir -p $PROJECT_FOLDER

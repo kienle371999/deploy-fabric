@@ -5,6 +5,8 @@ const Organization = require('../../models/organization.model')
 const Peer = require('../../models/peer.model')
 const User = require('../../models/user.model')
 const Channel = require('../../models/channel.model')
+const Chaincode = require('../../models/chaincode.model')
+const Explorer = require('../../models/explorer.model')
 const yaml = require('js-yaml')
 const _ = require('lodash')
 const fs = require('fs')
@@ -421,6 +423,10 @@ const stopNetwork = async () => {
     else {
       console.log('System-data', res.stdout.toString())
       console.log('Blockchain-data', res.stderr.toString())
+      await Promise.all([
+        Chaincode.deleteMany(),
+        Explorer.deleteMany()
+      ])
       return await Network.findOneAndUpdate({ name: defaultNetwork }, { status: status.new })
     }
 }
