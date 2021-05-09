@@ -49,7 +49,7 @@
                 :disabled="configState"
                 v-model="channels[index].name"/>
               <div v-if="channelErrors[index].name.status">
-                <div class="mt-2 text-red-700">{{ channelErrors.channels[index].name.message }}</div>
+                <div class="mt-2 text-red-700">{{ channelErrors[index].name.message }}</div>
               </div>
             </div>
             <div>
@@ -61,6 +61,9 @@
                   :allow-empty="true"
                   placeholder="Select"
                   :options="orgOptions"/>
+              <div v-if="channelErrors[index].orgs.status">
+                <div class="mt-2 text-red-700">{{ channelErrors[index].orgs.message }}</div>
+              </div>
             </div>
           </div>
           <div class="flex pl-8 pb-6 pt-6">
@@ -255,6 +258,10 @@ export default defineComponent({
         orgErrors.value.organizations[index].org_name = validateForm('organization', org.org_name)
         orgErrors.value.organizations[index].number_peers = validateForm('Number Peer', org.number_peers)
       })
+      channels.value.forEach((channel, index) => {
+        channelErrors.value[index].name = validateForm('Channel Name', channel.name)
+        channelErrors.value[index].orgs = validateForm('Number Organization', channel.orgs[0])
+      })
       orgErrors.value.order_name = validateForm('order', order.value.order_name)
     }
 
@@ -264,6 +271,10 @@ export default defineComponent({
         if(orgErrors.value.organizations[index].org_name.status) state = false
         if(orgErrors.value.organizations[index].number_peers.status) state = false
       })
+      // channels.value.forEach((channel, index) => {
+      //   if(channelErrors.value[index].name) state = false
+      //   if(channelErrors.value[index].orgs) state = false
+      // })
       if(orgErrors.value.order_name.status) state = false
       return state
     }

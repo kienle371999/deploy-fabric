@@ -1,7 +1,8 @@
 #!/bin/bash
 
-PROJECT=${1:-blocktrace}
+PROJECT=${1:-test}
 CONFIG_FILE=${2:-config-templates/values.chaincodes.yaml}
+EXPLORER_FILE=${3:-hlf-kube/values.explorer.yaml}
 
 mydir=$(dirname "$0")
 
@@ -18,6 +19,6 @@ echo "Preparing chaincode..."
 ./prepare_chaincodes.sh $PROJECT_FOLDER ./samples/chaincode/
 
 echo "Installing chaincode..."
-helm upgrade $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml -f $PROJECT_FOLDER/chaincode-config.yaml --set enabledPostgres=true --wait 
+helm upgrade $PROJECT ./hlf-kube -f $PROJECT_FOLDER/network.yaml -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml -f $PROJECT_FOLDER/chaincode-config.yaml -f $EXPLORER_FILE --set enabledPostgres=true --wait 
 helm template chaincode-flow/ -f $PROJECT_FOLDER/crypto-config.yaml -f $PROJECT_FOLDER/hostAliases.yaml -f $PROJECT_FOLDER/chaincode-config.yaml | argo submit - --log --serviceaccount workflow
 

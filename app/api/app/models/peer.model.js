@@ -17,10 +17,6 @@ const PeerSchema = new Schema({
     maxlength: 255,
     required: true
   },
-  couchdb_name: {
-    type: String,
-    maxlength: 255
-  },
   couchdb_username: {
     type: String,
     maxlength: 255

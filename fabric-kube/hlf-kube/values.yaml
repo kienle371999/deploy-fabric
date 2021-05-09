@@ -121,7 +121,7 @@ couchdbAccount:
   - domain: peer0.org2.example.com
     userName: 
     password: adminpw
-    port:  32080
+    port:  32070
   - domain: peer1.org2.example.com
     userName: 
     password: adminpw
@@ -185,12 +185,12 @@ caAccount:
   - organization: org1
     userName: admin
     password: adminpw
-    port: 30040
+    port: 30010
     logLevel: info
   - organization: org2
     userName: admin
     password: adminpw
-    port: 30010
+    port: 30050
     logLevel: info
 
 # chaincode settings

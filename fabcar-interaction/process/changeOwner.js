@@ -11,7 +11,7 @@ const changeOwner = (params) => {
       console.log('Blockchain-data', res.stderr.toString())
     }
     if(/Chaincode invoke successful/.test(res.stderr.toString())) {
-      return messageHandle.success('Chaincode invoke successful')
+      return messageHandle.success('Chaincode update successful')
     }
     return messageHandle.badRequest('Can not change Fabcar Owner')
   }

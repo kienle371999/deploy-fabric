@@ -1,0 +1,6 @@
+chaincodes:
+  - Name: fabcar
+    Channel: mychannel
+    Orgs:
+      - org1
+      - org2

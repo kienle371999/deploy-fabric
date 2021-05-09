@@ -7,7 +7,7 @@ const _ = require('lodash')
 const fs = require('fs')
 const { spawnSync, spawn } = require("child_process")
 const { defaultNetwork, chaincode, status } = require('../../utils/constant')
-require('dotenv').config({ path: require('find-config')('.env') })
+const Promise = require('bluebird')
 
 const _vArgs = (arg) => {
   if(typeof arg !== 'string' || arg.length === 0) return false
@@ -84,53 +84,47 @@ const createChaincode = async(args) => {
 }
 
 const startChaincode = async(args) => {
-  const validateArgs = async(args) => {
-      const { chaincodeId, channelName } = args
-      if(!_vArgs(chaincodeId)) throw new Error('ChaincodeID must be non-empty')
-      if(!_vArgs(chaincodeName)) throw new Error('Channel Name must be non-empty')
+  const { chaincodeId, channelName } = args
+  const vChaincode = await Chaincode.findById(chaincodeId)
+  if(vChaincode.status === chaincode.instantiation) return vChaincode 
 
-      const vChaincode = await Chaincode.findById(chaincodeId)
-      if(!vChaincode) throw new Error('Chaincode is not found')
-      if(vChaincode.status === chaincode.instantiation) return vChaincode 
-
-      const vChannel = await Channel.findOne({ name: channelName })
-      if(!vChannel) throw new Error
-      return { 
-        chaincodeName: vChaincode.name,
-        channel: vChannel
-      }
-    }
-
-    const { chaincodeName, channel } = await validateArgs(args)
-
-    const filterOrgs = await Promise.map(channel.organization, async(orgId) => {
+  try {
+    const channel = await Channel.findOne({ name: channelName })
+    const filterOrgs = await Promise.map(channel.organizations, async(orgId) => {
       const organization = await Organization.findById(orgId)
       return organization.name
     })
 
+    const network = await Network.findOne({ name: defaultNetwork })
     const templateConfig = { 
       chaincodes: [{
-      Name: chaincodeName,
+      Name: vChaincode.name,
       Channel: channel.name,
       Orgs: filterOrgs
       }] 
     }
 
+    console.log(templateConfig)
+
     const yamlStr = yaml.safeDump(templateConfig)
     fs.writeFileSync('yaml-generation/chaincode-config.yaml', yamlStr, 'utf8')
     const configPath = process.env.PWD.concat('/yaml-generation/chaincode-config.yaml')
-    console.log("startChaincode -> configPath", configPath)
+    const explorerPath = process.env.PWD.concat('/yaml-generation/explorer-config.yaml')
   
-    const res = spawnSync('bash', ['../../../instantiate-chaincode.sh', network.name.toLowerCase(), configPath])
+    const res = spawnSync('bash', ['../../../instantiate-chaincode.sh', network.name.toLowerCase(), configPath, explorerPath])
     if(res.status !== 0) {
       console.log('Blockchain Error', res.stderr.toString())
     }
     else {
       console.log('System-data', res.stdout.toString())
       console.log('Blockchain-data', res.stderr.toString())
-      return await Chaincode.findOneAndUpdate({ name: chaincodeName }, { status: chaincode.instantiation })
+      return await Chaincode.findByIdAndUpdate(chaincodeId, { status: chaincode.instantiation })
     }
   }
+  catch(error) {
+    throw new Error(error.message)
+  }
+}
 
 module.exports = {
     getChaincode,

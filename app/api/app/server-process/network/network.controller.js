@@ -2,7 +2,7 @@ const express = require('express')
 const { commonError, handleStatus } = require('../../library/response')
 const authJwt = require('../../middlewares/authJwt')
 const { success } = require('../../utils/messageCode')
-const { addNetwork, getNetwork, updateNetwork, deleteNetwork, startNetwork, getNetworkByArg } = require('./network.service')
+const { addNetwork, getNetwork, updateNetwork, deleteNetwork, startNetwork, stopNetwork, getNetworkByArg } = require('./network.service')
 const { defaultNetwork } = require('../../utils/constant')
 
 const api = express.Router()
@@ -62,6 +62,16 @@ api.delete('/network/:networkArg', async(req, res) => {
 api.post('/start-network', async(req, res) => {
   try {
     const result = await startNetwork()
+    return handleStatus(res, success(result))
+  }
+  catch(error) {
+    return commonError(res, error)
+  }
+})
+
+api.post('/stop-network', async(req, res) => {
+  try {
+    const result = await stopNetwork()
     return handleStatus(res, success(result))
   }
   catch(error) {

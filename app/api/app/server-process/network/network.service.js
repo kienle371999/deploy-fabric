@@ -413,12 +413,25 @@ const startNetwork = async() => {
   }
 }
 
+const stopNetwork = async () => {
+  const res = spawnSync('bash', ['../../../clean.sh'])
+    if(res.status !== 0) {
+      console.log('Blockchain Error', res.stderr.toString())
+    }
+    else {
+      console.log('System-data', res.stdout.toString())
+      console.log('Blockchain-data', res.stderr.toString())
+      return await Network.findOneAndUpdate({ name: defaultNetwork }, { status: status.new })
+    }
+}
+
 module.exports = {
     addNetwork,
     getNetwork,
     getNetworkByArg,
     updateNetwork,
     deleteNetwork,
-    startNetwork
+    startNetwork,
+    stopNetwork
 }
 

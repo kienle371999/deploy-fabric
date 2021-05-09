@@ -42,18 +42,10 @@ const createExplorer = async(args) => {
     const vExplorer = await Explorer.create({ network: network._id, ...vArgs })
 
 
-    const cryptoFile = fs.readFileSync(`../../../networks/${defaultNetwork}/crypto-config.yaml`, 'utf8')
-    const cryptoContent = yaml.safeLoad(cryptoFile)
-    console.log("createExplorer -> cryptoContent", cryptoContent.PeerOrgs[0].Name)
-    const configRes = spawnSync('bash', ['../../../fabric-kube/explorer-config/config-generate.sh', cryptoContent.PeerOrgs[0].Name])
-    if(configRes.status !== 0) {
-      console.log('error', configRes.stderr.toString())
-    }
-    else {
-      console.log('System-data', configRes.stdout.toString())
-      console.log('System-error', configRes.stderr.toString())
-    }
+    const networkFile = fs.readFileSync(`../../../networks/${defaultNetwork}/network.yaml`, 'utf8')
+    const networkContent = yaml.safeLoad(networkFile)
 
+    const configRes = spawnSync('bash', ['../../../fabric-kube/explorer-config/config-generate.sh', networkContent.network.channels[0].name, networkContent.network.channels[0].orgs[0]])
     const templateConfig = { enabledPostgres: true, explorerPort: parseInt(vExplorer.port) }
     const yamlStr = yaml.safeDump(templateConfig)
     fs.writeFileSync('yaml-generation/explorer-config.yaml', yamlStr, 'utf8')

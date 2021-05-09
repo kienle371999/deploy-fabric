@@ -33,6 +33,9 @@
                     :allow-empty="true"
                     placeholder="Select"
                     :options="channelOptions"/>
+                  <div v-if="chaincodeError.channel.status">
+                    <div class="mt-2 text-red-700">{{ chaincodeError.channel.message }}</div>
+                  </div>
                 </div>
                 <div class="pt-8">
                   <label class="text-gray-700" for="chaincode_name">{{ 'Chaincode Path' }}</label>
@@ -68,21 +71,14 @@
                       <td class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm">
                         <span>{{ chaincode.channel.name }}</span>
                       </td>
-                      <td 
-                      class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm"
-                      v-if="chaincode.status === 'New'">
+                      <td>
                         <button 
-                          class="px-4 py-2 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
-                          @click="instantiate()"
-                        >{{ 'Instantiate' }}</button>
-                      </td>
-                      <td
-                      class="px-6 py-5 border-b border-gray-200 text-center bg-white text-sm"
-                      v-else>
-                        <button 
-                          class="px-4 py-2 bg-gray-500 text-gray-200 rounded-md"
-                          :disabled="true"
-                        >{{ 'Instantiated' }}</button>
+                          :class="`px-4 py-2 bg-gray-${chaincode.buttonState.color} text-gray-200 rounded-md`"
+                          :disabled="!chaincode.buttonState.status"
+                          @click="instantiate(index, chaincode.id, chaincode.channel.name)"
+                        > 
+                          {{ chaincode.buttonState.message }}
+                        </button>
                       </td>
                     </tr>
                   </tbody>
@@ -148,9 +144,15 @@ const crawledChaincode = async(crawledData: any) => {
   if(crawledData.status) {
       return crawledData.data.vChaincodes.map(data => {
         return {
+          id: data._id,
           name: data.name,
           channel: data.channel,
-          status: data.status
+          status: data.status,
+          buttonState: {
+            status: data.status === 'New' ? true : false,
+            color: data.status === 'New' ? '800' : '500',
+            message: data.status === 'New' ? 'Instantiate' : " Instantiated"
+          }
         }
       })
     }
@@ -162,6 +164,7 @@ export default defineComponent({
     const startWatch = ref<Boolean>(false)
     const channelOptions = ref<String[]>([])
     const chaincode = ref<IChaincode>({
+      id: '',
       name: '',
       channel: '',
       path: ''
@@ -183,14 +186,15 @@ export default defineComponent({
     })
 
     const crawledData = await crawlData()
-    channelOptions.value = crawledData.data.vChannels.map(channel => {
-      return {
-        value: channel.name,
-        label: channel.name
-      }
-    })
-
-    chaincodeTableData.value = await crawledChaincode(crawledData)
+    if(crawlData) {
+      channelOptions.value = crawledData.data.vChannels.map(channel => {
+        return {
+          value: channel.name,
+          label: channel.name
+        }
+      })
+      chaincodeTableData.value = await crawledChaincode(crawledData)
+    }
     
     function handleForm() {
       startWatch.value = true
@@ -220,6 +224,7 @@ export default defineComponent({
           const res = await ChaincodeRequest.creatChaincode(chaincode.value)
           if(res) {
             chaincode.value = {
+              id: '',
               name: '',
               channel: '',
               path: ''
@@ -236,13 +241,35 @@ export default defineComponent({
       }
     }
 
+    async function instantiate(index, id, channelName) {
+      const loader = this.$loading()
+      loader.show({ loader: 'dots' })
+      try {
+        const res = await ChaincodeRequest.startChaincode(id, { channelName: channelName })
+        if(res) {
+          loader.hide()
+          chaincodeTableData.value[index].buttonState = {
+            status: false,
+            color: '500',
+            message: 'Instantiated'
+          }
+          this.$toast.success('Successfully deploy chaincode')
+        }
+      }
+      catch(error) {
+        loader.hide()
+        this.$toast.error(error.message)
+      }
+    }
+
 
     return { 
       chaincode,
       chaincodeError,
       chaincodeTableData,
       channelOptions,
-      submit
+      submit,
+      instantiate
     }
   }
 })

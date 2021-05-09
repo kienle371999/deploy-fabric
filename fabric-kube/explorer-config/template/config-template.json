@@ -21,7 +21,7 @@
 	},
 
 	"channels": {
-		"mychannel": {
+		"${CHANNEL_NAME}": {
 			"peers": {
 				"hlf-peer--${ORG_NAME}--peer0": {}
 			},

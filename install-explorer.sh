@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT=${1:-blocktrace}
+PROJECT=${1:-test}
 EXPLORER_FILE=${2:-hlf-kube/values.explorer.yaml}
 
 mydir=$(dirname "$0")

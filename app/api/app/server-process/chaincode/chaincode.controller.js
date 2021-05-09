@@ -25,11 +25,11 @@ api.post('/chaincode', authJwt, async(req, res) => {
   }
 })
 
-api.post('/chaincode/:id', authJwt, async(req, res) => {
+api.post('/start-chaincode/:chaincodeId', authJwt, async(req, res) => {
   try {
     const { chaincodeId } = req.params
     const result = await startChaincode({ chaincodeId, ...req.body })
-    return result
+    return handleStatus(res, success(result))
   }
   catch(error) {
     return commonError(res, error)

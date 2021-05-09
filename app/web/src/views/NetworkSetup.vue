@@ -20,8 +20,8 @@
             @click="changeComponent('NetworkSetupOrder')">
             <p class="text-center">{{ 'Order' }}</p>
           </span>
-          <button :class="`col-span-2 ml-auto mr-0 mt-3 w-1/3 bg-${buttonState.color}-500 rounded-md text-white focus:outline-none font-medium tracking-wide hover:bg-green-500`"
-            @click="start()">{{ buttonState.message }}
+          <button :class="`col-span-2 ml-auto mr-0 mt-3 w-1/3 bg-${buttonState.color}-500 rounded-md text-white focus:outline-none font-medium tracking-wide`"
+            @click="handle()">{{ buttonState.message }}
           </button>
         </div>
         <div v-if="componentName === 'NetworkSetupOrg'" class="py-4 overflow-x-auto">
@@ -180,6 +180,7 @@ export default defineComponent({
     const orderTableData = ref<IOrder[]>([])
     const peerTableData = ref<IPeer[]>([])
     const buttonState = ref<INetworkButton>({
+      state: 'start',
       color: 'green',
       message: 'Start Network'
     })
@@ -190,7 +191,7 @@ export default defineComponent({
       orderTableData.value = crawledData.vOrders
       peerTableData.value = crawledData.vPeers
       if(crawledData.vNetwork.status === 'Running') {
-        buttonState.value = { color: 'red', message: 'Stop Network' }
+        buttonState.value = { state: 'stop', color: 'red', message: 'Stop Network' }
       }
     }
 
@@ -203,37 +204,56 @@ export default defineComponent({
       edit.value = true 
     }
 
-    async function start() {
-      let checkComplete: boolean = true
-      organizationTableData.value.forEach(org => {
-        if(!org.ca_username) checkComplete = false
-        if(!org.ca_password) checkComplete = false
-        if(!org.ca_port) checkComplete = false
-      })
-      peerTableData.value.forEach(peer => {
-        if(!peer.couchdb_username) checkComplete = false
-        if(!peer.couchdb_password) checkComplete = false
-        if(!peer.couchdb_port) checkComplete = false 
-      })
+    async function handle() {
+      if(buttonState.value.state === 'start') {
+        let checkComplete: boolean = true
+        organizationTableData.value.forEach(org => {
+          if(!org.ca_username) checkComplete = false
+          if(!org.ca_password) checkComplete = false
+          if(!org.ca_port) checkComplete = false
+        })
+        peerTableData.value.forEach(peer => {
+          if(!peer.couchdb_username) checkComplete = false
+          if(!peer.couchdb_password) checkComplete = false
+          if(!peer.couchdb_port) checkComplete = false 
+        })
 
-      if(!checkComplete) {
-        this.$toast.error('Please fill out this form')
-        return
-      }
-      try {
-        const loader = this.$loading()
-        loader.show({ loader: 'dots' })
-        const networkRes = await NetworkRequest.startNetwork()
-        if(networkRes) {
-          loader.hide()
-          buttonState.value = { color: 'red', message: 'Stop Network' }
-          this.$toast.success('Successfully start network')
+        if(!checkComplete) {
+          this.$toast.error('Please fill out this form')
+          return
+        }
+        try {
+          const loader = this.$loading()
+          loader.show({ loader: 'dots' })
+          const networkRes = await NetworkRequest.startNetwork()
+          if(networkRes) {
+            loader.hide()
+            buttonState.value = { state: 'stop', color: 'red', message: 'Stop Network' }
+            this.$toast.success('Successfully start network')
+          }
+        }
+        catch(error) {
+          console.log("start -> error", error)
+          this.$toast.error(error.message)
+          return
         }
       }
-      catch(error) {
-        console.log("start -> error", error)
-        this.$toast.error(error.message)
-        return
+      else {
+        try {
+          const loader = this.$loading()
+          loader.show({ loader: 'dots' })
+          const networkRes = await NetworkRequest.stopNetwork()
+          if(networkRes) {
+            loader.hide()
+            buttonState.value = { state: 'start', color: 'green', message: 'Start Network' }
+            this.$toast.success('Successfully start network')
+          }
+        }
+        catch(error) {
+          console.log("start -> error", error)
+          this.$toast.error(error.message)
+          return
+        }
       }
     }
 
@@ -256,7 +276,7 @@ export default defineComponent({
       passedData,
       passedType,
       buttonState,
-      start,
+      handle,
       close
     }
   }

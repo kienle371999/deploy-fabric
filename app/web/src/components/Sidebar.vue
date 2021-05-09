@@ -133,10 +133,9 @@
 
           <span class="mx-4">{{ 'Chaincode' }}</span>
         </router-link>
-        <router-link
-          class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4"
-          :class="[$route.name === 'Dashboard' ? activeClass : inactiveClass]"
-          to="/dashboard"
+        <div
+          class="flex items-center duration-200 mt-4 py-2 px-6 border-l-4 cursor-pointer"
+          :class="inactiveClass"
         >
           <svg
             class="h-5 w-5"
@@ -154,8 +153,8 @@
             />
           </svg>
 
-          <span class="mx-4">Dashboard</span>
-        </router-link>
+          <span class="mx-4" @click="redirect()">{{ 'Network Health' }}</span>
+        </div>
       </nav>
     </div>
   </div>
@@ -164,9 +163,11 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useSidebar } from "../hooks/useSidebar";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   setup() {
+    const router = useRouter();
     const { isOpen } = useSidebar();
     const activeClass = ref(
       "bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100"
@@ -175,10 +176,15 @@ export default defineComponent({
       "border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100"
     );
 
+    function redirect() {
+      window.open("http://127.0.0.1:34401/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/#/overview?namespace=default")
+    }
+
     return {
       isOpen,
       activeClass,
       inactiveClass,
+      redirect
     };
   },
 });

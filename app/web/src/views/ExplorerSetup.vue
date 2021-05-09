@@ -95,9 +95,9 @@ export default defineComponent({
     async function create() {
       handleForm()
       if(checkState()) {
+        const loader = this.$loading()
+        loader.show({ loader: 'dots' })
         try {
-          const loader = this.$loading()
-          loader.show({ loader: 'dots' })
           const res = await ExplorerRequest.createExplorer({ name: explorer.value.name, port: explorer.value.port })
           if(res) {
             loader.hide()
@@ -105,6 +105,7 @@ export default defineComponent({
           }
         }
         catch(error) {
+          loader.hide()
           this.$toast.error(error.message)
           return
         }

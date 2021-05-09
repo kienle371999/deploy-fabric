@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT=${1:-blocktrace}
+PROJECT=${1:-test}
 CONFIG_FILE=${2:-config-templates/values.yaml}
 
 mydir=$(dirname "$0")

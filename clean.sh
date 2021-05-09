@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$(helm  list -aq)" != "" ]; then 
-    helm del $(helm ls --all --short) --purge
+    helm del $(helm ls --all --short)
     argo delete --all
 fi
 

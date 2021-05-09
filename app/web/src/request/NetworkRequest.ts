@@ -30,6 +30,10 @@ class NetworkRequest extends BaseRequest {
         const url = this.getURL(`/api/start-network`)
         return this.post(url)
     }
+    async stopNetwork() {
+        const url = this.getURL(`/api/stop-network`)
+        return this.post(url)
+    }
 }
 
 const instance = new NetworkRequest()

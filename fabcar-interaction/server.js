@@ -8,7 +8,7 @@ const { changeOwner } = require('./process/changeOwner')
 
 require('dotenv').config({ path: require('find-config')('.env') })
 const app = express()
-const port = process.env.API_PORT || 7000
+const port = process.env.API_PORT || 7500
 
 app.use(cors())
 app.use(bodyParser.json())

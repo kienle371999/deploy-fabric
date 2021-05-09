@@ -37,13 +37,20 @@ export interface IChannel {
 }
 
 export interface IChaincode {
+   id: string
    name: string
    channel: string
    path?: string
    status?: string
+   buttonState?: {
+      status: boolean
+      color: string
+      message: string
+   }
 }
 
 export interface INetworkButton {
+   state: string
    color: string
    message: string
 }

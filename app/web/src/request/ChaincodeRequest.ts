@@ -14,6 +14,10 @@ class ChannelRequest extends BaseRequest {
         const url = this.getURL('/api/chaincode')
         return this.post(url, params)
     }
+    async startChaincode(id: string, params: any) {
+        const url = this.getURL(`/api/start-chaincode/${id}`)
+        return this.post(url, params)
+    }
 }
 
 const instance = new ChannelRequest()
